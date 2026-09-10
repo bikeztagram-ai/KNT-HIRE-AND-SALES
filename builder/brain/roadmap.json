@@ -1,1 +1,21 @@
-{"version":1,"project":"KNT Hire & Sales","batches":[{"id":"KNT-001","name":"Autonomous builder control plane","state":"complete"},{"id":"KNT-002","name":"Production application foundation","state":"queued"},{"id":"KNT-003","name":"Customers and sites","state":"queued"},{"id":"KNT-004","name":"Forklift fleet","state":"queued"},{"id":"KNT-005","name":"Jobsheets","state":"queued"},{"id":"KNT-006","name":"Photo evidence","state":"queued"},{"id":"KNT-007","name":"Parts and suppliers","state":"queued"},{"id":"KNT-008","name":"Supplier paperwork and OCR","state":"queued"},{"id":"KNT-009","name":"Service and LOLER","state":"queued"},{"id":"KNT-010","name":"Quotes","state":"queued"},{"id":"KNT-011","name":"Invoices and review","state":"queued"},{"id":"KNT-012","name":"Payments and reporting","state":"queued"},{"id":"KNT-013","name":"Hardening","state":"queued"},{"id":"KNT-014","name":"Deployment","state":"queued"},{"id":"KNT-015","name":"Post-V1 improvements","state":"queued"}]}
+{
+  "version": 1,
+  "project": "KNT Hire & Sales",
+  "batches": [
+    {"id":"KNT-001","name":"Autonomous builder control plane","state":"complete"},
+    {"id":"KNT-002","name":"Production application foundation","state":"in_progress"},
+    {"id":"KNT-003","name":"Customers and sites","state":"queued"},
+    {"id":"KNT-004","name":"Forklift fleet","state":"queued"},
+    {"id":"KNT-005","name":"Jobsheets","state":"queued"},
+    {"id":"KNT-006","name":"Photo evidence","state":"queued"},
+    {"id":"KNT-007","name":"Parts and suppliers","state":"queued"},
+    {"id":"KNT-008","name":"Supplier paperwork and OCR","state":"queued"},
+    {"id":"KNT-009","name":"Service and LOLER","state":"queued"},
+    {"id":"KNT-010","name":"Quotes","state":"queued"},
+    {"id":"KNT-011","name":"Invoices and review","state":"queued"},
+    {"id":"KNT-012","name":"Payments and reporting","state":"queued"},
+    {"id":"KNT-013","name":"Hardening","state":"queued"},
+    {"id":"KNT-014","name":"Deployment","state":"queued"},
+    {"id":"KNT-015","name":"Post-V1 improvements","state":"queued"}
+  ]
+}
