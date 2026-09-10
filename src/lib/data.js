@@ -70,6 +70,27 @@ export async function listJobPhotos(jobId) {
   return data ?? [];
 }
 
+export async function listJobStatusHistory(jobId) {
+  requireCloud();
+  const { data, error } = await supabase.from('job_status_history').select('*').eq('job_id', jobId).order('changed_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function addJobStatusHistory(jobId, oldStatus, newStatus, note = '') {
+  requireCloud();
+  const { data: { user } = {} } = await supabase.auth.getUser();
+  const { data, error } = await supabase.from('job_status_history').insert({ job_id: jobId, old_status: oldStatus || null, new_status: newStatus, changed_by: user?.id || null, note: note || null }).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function saveJobStatus(jobId, oldStatus, newStatus, note = '') {
+  const job = await updateJob(jobId, { status: newStatus });
+  if (oldStatus !== newStatus) await addJobStatusHistory(jobId, oldStatus, newStatus, note);
+  return job;
+}
+
 export async function uploadJobFile(jobId, file) {
   requireCloud();
   const safeName = String(file.name || 'upload').replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -87,4 +108,11 @@ export async function attachJobSource(jobId, file) {
 export async function attachSignature(jobId, file) {
   const path = await uploadJobFile(jobId, file);
   return updateJob(jobId, { customer_signature_path: path });
+}
+
+export async function getPrivateFileUrl(path, expiresIn = 3600) {
+  requireCloud();
+  const { data, error } = await supabase.storage.from('knt-job-evidence').createSignedUrl(path, expiresIn);
+  if (error) throw error;
+  return data?.signedUrl || '';
 }
