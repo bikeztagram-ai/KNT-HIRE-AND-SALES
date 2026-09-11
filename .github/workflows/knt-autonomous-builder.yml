@@ -17,7 +17,7 @@ on:
       local_model:
         description: 'Local coding model'
         required: false
-        default: 'qwen2.5-coder:7b'
+        default: 'qwen2.5-coder:3b'
         type: string
 concurrency:
   group: knt-autonomous-builder
@@ -32,7 +32,7 @@ env:
   AUTOBOT_AIDER_MODEL: ollama_chat/${{ inputs.local_model }}
   AUTOBOT_FEATURE_ENGINE: aider
   AUTOBOT_FEATURE_PROTOCOL: aider-repo-map-v3
-  AUTOBOT_WORKER_CONFIG_VERSION: aider-v3-resumable-15m-1pass
+  AUTOBOT_WORKER_CONFIG_VERSION: knt-proven-aider-v1
   AUTOBOT_FINISH_GRACE_MINUTES: 5
   AUTOBOT_FEATURE_SLICE_MINUTES: 15
   AUTOBOT_FEATURE_PASSES_PER_SLICE: 1
@@ -96,6 +96,11 @@ jobs:
           esac
           echo "BUILDER_MAX_MINUTES=$minutes" >> "$GITHUB_ENV"
           echo "[autobot] KNT proven Aider/Qwen budget: ${minutes}m + ${AUTOBOT_FINISH_GRACE_MINUTES}m finish grace"
+      - name: Validate KNT exact file contract
+        run: |
+          set -euo pipefail
+          node --check scripts/autobot/verify-knt-file-contract.mjs
+          node scripts/autobot/verify-knt-file-contract.mjs
       - name: Validate proven Aider AutoBot
         run: |
           set -euo pipefail
@@ -113,6 +118,7 @@ jobs:
           node --check builder/runner/long-run-executor.mjs
           node --check builder/runner/ollama-performance-proxy.mjs
           node --check builder/quality/audit-log.mjs
+          node scripts/autobot/repository-intelligence.mjs
           curl -fsS "$OLLAMA_HOST/api/tags" >/dev/null
           echo '[autobot] KNT proven Aider/Qwen safety checks passed.'
       - name: Run proven sustained KNT Aider/Qwen builder
