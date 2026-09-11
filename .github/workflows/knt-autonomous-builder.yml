@@ -86,7 +86,7 @@ jobs:
           echo 'AUTOBOT_FEATURE_ENGINE=aider' >> "$GITHUB_ENV"
           echo 'AUTOBOT_FEATURE_PROTOCOL=aider-repo-map-v3' >> "$GITHUB_ENV"
           echo 'AUTOBOT_AIDER_MODEL=ollama_chat/${{ inputs.local_model }}' >> "$GITHUB_ENV"
-          echo '[autobot] proven Bikeztagram Aider repo-map engine selected; local Ollama proxy ready'
+          echo '[autobot] proven KNT Aider repo-map engine selected; local Ollama proxy ready'
       - name: Resolve duration
         run: |
           set -euo pipefail
