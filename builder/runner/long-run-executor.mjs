@@ -27,8 +27,8 @@ while(remaining()>60000&&normalRemaining()>30000&&cycles<maxCycles){
   const r=run(process.execPath,['builder/runner/feature-brain.mjs'],{env,timeout:Math.max(60000,remaining()-5000)});
   const after=changedProduct();
   const made=after.filter(p=>!before.has(p));
-  if(r.status===0&&made.length){successes++;failures=0;noProgress=0;appendAudit('knt-cycle-verified',{cycle,changed:made,successes})}
-  else{failures++;noProgress++;appendAudit('knt-cycle-no-progress',{cycle,status:r.status,changed:made,failures,noProgress});}
+  if(r.status===0&&made.length){successes++;failures=0;noProgress=0;appendAudit('knt-cycle-verified',{cycle:cycles,changed:made,successes})}
+  else{failures++;noProgress++;appendAudit('knt-cycle-no-progress',{cycle:cycles,status:r.status,changed:made,failures,noProgress});}
   write(noProgress>=2?'no-progress-stop':'running',cycles,successes,failures,noProgress);
   if(noProgress>=2){console.log('[autobot] two consecutive cycles produced no verified product progress; stopping safely.');break;}
   if(normalRemaining()>60000&&remaining()>60000)run('sleep',['2'],{timeout:5000});
