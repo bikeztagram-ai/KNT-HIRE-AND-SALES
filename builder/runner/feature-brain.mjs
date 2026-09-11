@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+/** KNT local Qwen feature brain: repository-aware structured edits with hard verification. */
+import fs from 'node:fs';
+import path from 'node:path';
+import {execFileSync,spawn} from 'node:child_process';
+import {appendAudit} from '../quality/audit-log.mjs';
+const root=process.cwd();
+const model=process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b';
+const host=process.env.OLLAMA_HOST||'http://127.0.0.1:11434';
+const minutes=Math.max(1,Number.parseInt(process.env.BUILDER_MAX_MINUTES||'10',10));
+const maxAttempts=Math.max(1,Math.min(2,Number.parseInt(process.env.AUTOBOT_FEATURE_MAX_ATTEMPTS||'2',10)));
+const maxEdits=Math.max(1,Math.min(2,Number.parseInt(process.env.AUTOBOT_FEATURE_MAX_EDITS||'2',10)));
+const deadline=Number.parseInt(process.env.AUTOBOT_FEATURE_DEADLINE_EPOCH_MS||String(Date.now()+minutes*60000),10);
+const statePath=path.join(root,'builder','working','feature-brain-state.json');
+const started=Date.now();
+const remainingMs=()=>Math.max(0,deadline-Date.now());
+const abs=p=>path.join(root,p);
+const run=(cmd,args,opts={})=>execFileSync(cmd,args,{cwd:root,encoding:'utf8',...opts});
+const capture=(cmd,args)=>{try{return run(cmd,args)}catch(e){return[e.stdout,e.stderr,e.message].filter(Boolean).join('\n')}};
+const read=(p,max=5000)=>{const f=abs(p);if(!fs.existsSync(f))return'';const s=fs.readFileSync(f,'utf8');return s.length<=max?s:`${s.slice(0,max)}\n...[trimmed]...`};
+const loadJson=(p,fallback)=>{try{return JSON.parse(fs.readFileSync(abs(p),'utf8'))}catch{return fallback}};
+const objectives=loadJson('builder/brain/feature-objectives.json',{objectives:[]}).objectives||[];
+let state=loadJson('builder/working/feature-brain-state.json',{version:7,completed:[],failed:{}});
+const completed=new Set(state.completed||[]);
+function save(){fs.mkdirSync(path.dirname(statePath),{recursive:true});fs.writeFileSync(statePath,JSON.stringify({...state,version:7,completed:[...completed],updatedAt:new Date().toISOString()},null,2)+'\n')}
+function depsMet(o){return(o.dependsOn||[]).every(id=>completed.has(id))}
+function choose(){return objectives.filter(o=>o?.enabled!==false&&!completed.has(o.id)&&depsMet(o)).sort((a,b)=>(b.priority||0)-(a.priority||0))[0]||null}
+function repoContext(o){const map=loadJson('builder/working/repository-map.json',{byPath:{},files:[]});return JSON.stringify({trackedSourceFiles:map.files?.length||0,objectiveFiles:(o.files||[]).map(p=>map.byPath?.[p]).filter(Boolean).map(e=>({path:e.path,symbols:(e.symbols||[]).slice(0,14),imports:(e.imports||[]).slice(0,10),dependents:(e.dependents||[]).slice(0,10)}))},null,2)}
+function sourceContext(file,o){const text=read(file,6200);const lines=text.split(/\r?\n/);const terms=`${o.title} ${(o.acceptance||[]).join(' ')}`.toLowerCase().match(/[a-z][a-z0-9]{3,}/g)||[];const hits=[];for(let i=0;i<lines.length;i++)if(terms.some(t=>lines[i].toLowerCase().includes(t)))hits.push(i);const starts=[0,...hits.slice(0,4).map(i=>Math.max(0,i-4))];const chunks=[];for(const s of starts){const c=lines.slice(s,Math.min(lines.length,s+24)).map((x,i)=>`${String(s+i+1).padStart(4,' ')}| ${x}`).join('\n');if(!chunks.includes(c))chunks.push(c)}return`===== ${file} =====\n${chunks.join('\n...\n').slice(0,6200)}`}
+function context(o,repair=false){const chunks=[`PROJECT: KNT Hire & Sales forklift service management app.\nOBJECTIVE: ${o.title}\nACCEPTANCE:\n- ${(o.acceptance||[]).join('\n- ')}\nCONSTRAINTS:\n- ${(o.constraints||[]).join('\n- ')}\n\nMake ONE small production-quality increment. Prefer one nearby function/block. Do not rewrite whole files.`,`===== REPOSITORY MAP =====\n${repoContext(o)}`];for(const f of o.files||[])chunks.push(sourceContext(f,o));chunks.push(`===== PROJECT MEMORY =====\n${read('builder/brain/project-memory.md',1800)}`);chunks.push(`===== LESSONS =====\n${read('builder/quality/lessons.md',1200)}`);if(repair){const f=state.failed?.[o.id];chunks.push(`===== LAST FAILURE =====\n${String(f?.message||'').slice(0,2400)}\n${String(f?.diff||'').slice(0,3200)}`)}return chunks.join('\n\n').slice(0,17000)}
+const schema={type:'object',additionalProperties:false,properties:{edits:{type:'array',minItems:1,maxItems:maxEdits,items:{type:'object',additionalProperties:false,properties:{file:{type:'string'},search:{type:'string',minLength:1,maxLength:2200},replace:{type:'string',maxLength:3200}},required:['file','search','replace']}}},required:['edits']};
+function parseResponse(raw){let content='';for(const line of raw.split(/\r?\n/)){try{const j=JSON.parse(line);if(j.message?.content)content=j.message.content;if(j.error)throw new Error(String(j.error))}catch{}}if(!content)throw new Error('Qwen returned no structured edit response');return JSON.parse(content)}
+function modelCall(o,repair){const prompt=`You are KNT Hire & Sales' senior implementation engineer. Return ONLY JSON matching {"edits":[{"file":"...","search":"...","replace":"..."}]}. SEARCH must be copied literally from supplied source and occur exactly once. REPLACE is the complete replacement block. Use at most ${maxEdits} small edits, preferably one file. Never output markdown, diffs, line numbers, ellipses, placeholders or commentary. Modify ONLY objective files. Never touch workflows, builder code, package manifests, generated files, secrets or unrelated files. Never invent OCR, certificates, supplier data or business records. Preserve Supabase/auth/evidence contracts and human invoice review. ${repair?'A previous attempt failed; correct that specific failure with a smaller/different anchor.':'Choose the smallest change that clearly advances one acceptance criterion.'}\n\n${context(o,repair)}`;const body=JSON.stringify({model,stream:false,keep_alive:'15m',format:schema,options:{temperature:0,num_ctx:8192,num_predict:900},messages:[{role:'system',content:'You are a precise senior React/JavaScript engineer. Output only valid JSON.'},{role:'user',content:prompt}]});const sec=Math.max(30,Math.floor(Math.min(remainingMs()-5000,330000)/1000));return new Promise((resolve,reject)=>{const child=spawn('curl',['-sS','--fail','--connect-timeout','10','--max-time',String(sec),`${host}/api/chat`,'-H','Content-Type: application/json','-d',body],{cwd:root});let out='',err='',done=false;const finish=(e,v)=>{if(done)return;done=true;clearTimeout(timer);e?reject(e):resolve(v)};const timer=setTimeout(()=>{try{child.kill('SIGTERM')}catch{}finish(new Error(`Qwen request timed out after ${sec}s`))},sec*1000+1500);child.stdout.on('data',d=>out+=d.toString());child.stderr.on('data',d=>err+=d.toString());child.on('error',e=>finish(e));child.on('close',code=>{if(code!==0)return finish(new Error(err.trim()||`Qwen request failed (${code})`));try{finish(null,parseResponse(out))}catch(e){finish(e)}})})}
+function validate(payload,o){if(!payload||!Array.isArray(payload.edits)||payload.edits.length<1||payload.edits.length>maxEdits)throw new Error('invalid structured edit list');const allowed=new Set(o.files||[]),seen=new Set();let total=0;for(const e of payload.edits){if(!allowed.has(e.file))throw new Error(`out-of-scope edit: ${e.file}`);if(seen.has(e.file))throw new Error(`multiple edits in one file: ${e.file}`);seen.add(e.file);const full=fs.readFileSync(abs(e.file),'utf8');const count=full.split(e.search).length-1;if(count!==1)throw new Error(`search must match exactly once in ${e.file}; found ${count}`);total+=e.search.length+e.replace.length}if(total>6500)throw new Error('combined edit too large')}
+function apply(payload){for(const e of payload.edits){const f=abs(e.file),s=fs.readFileSync(f,'utf8');fs.writeFileSync(f,s.replace(e.search,e.replace))}}
+function productDiff(){return capture('git',['diff','--name-only','--','src','supabase','package.json']).split(/\r?\n/).filter(Boolean)}
+function reset(){run('git',['reset','--hard','HEAD'],{stdio:'inherit'});run('git',['clean','-fd','-e','.git'],{stdio:'inherit'})}
+function refresh(){try{run(process.execPath,['scripts/autobot/repository-intelligence.mjs'],{stdio:'inherit',timeout:30000})}catch{}}
+function verify(before){const changed=productDiff().filter(p=>!before.has(p));if(!changed.length)throw new Error('Qwen made no product change');run('git',['diff','--check'],{stdio:'inherit'});for(const p of changed.filter(p=>/\.(js|mjs|cjs|jsx|ts|tsx)$/.test(p)))run(process.execPath,['--check',p],{stdio:'inherit'});run('npm',['run','build'],{stdio:'inherit',timeout:Math.min(120000,Math.max(30000,remainingMs()-5000))});return changed}
+if(process.env.LOCAL_AI_READY!=='1'){console.error('[autobot] local Qwen is not ready; refusing paid fallback');process.exit(2)}
+refresh();appendAudit('feature-brain-started',{engine:'structured-search-replace-v3',model,minutes,maxAttempts,maxEdits});
+const o=choose();
+if(!o){console.log('[autobot] no eligible KNT objective available');process.exit(0)}
+for(let attempt=1;attempt<=maxAttempts&&remainingMs()>35000;attempt++){
+  console.log(`[autobot] KNT Qwen objective ${o.id}, attempt ${attempt}/${maxAttempts}, ${(remainingMs()/60000).toFixed(1)}m remaining`);
+  const before=new Set(productDiff());
+  try{const payload=await modelCall(o,attempt>1);validate(payload,o);apply(payload);const changed=verify(before);completed.add(o.id);state.failed=state.failed||{};delete state.failed[o.id];state.lastSuccess={id:o.id,changed,at:new Date().toISOString()};save();refresh();appendAudit('feature-verified',{objectiveId:o.id,attempt,changed,engine:'structured-search-replace-v3'});console.log(`[autobot] VERIFIED PRODUCT FEATURE ${o.id}: ${changed.join(', ')}`);process.exit(0)}
+  catch(e){state.failed=state.failed||{};state.failed[o.id]={message:e.message,diff:capture('git',['diff','--','src','supabase','package.json']).slice(0,5000),attempts:(state.failed[o.id]?.attempts||0)+1,at:new Date().toISOString()};save();appendAudit('feature-failed',{objectiveId:o.id,attempt,message:e.message});console.error(`[autobot] ${o.id} failed: ${e.message}`);try{reset()}catch{process.exit(2)}refresh()}
+}
+appendAudit('feature-brain-finished',{made:0,completed:[...completed],elapsedMinutes:Number(((Date.now()-started)/60000).toFixed(2))});process.exit(1);
