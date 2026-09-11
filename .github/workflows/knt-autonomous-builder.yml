@@ -74,6 +74,13 @@ jobs:
           esac
           echo "BUILDER_MAX_MINUTES=$minutes" >> "$GITHUB_ENV"
           echo "[autobot] KNT proven Qwen budget: ${minutes}m + ${AUTOBOT_FINISH_GRACE_MINUTES}m finish grace"
+      - name: Create durable KNT checkpoint branch
+        run: |
+          set -euo pipefail
+          branch="autonomous-builder-knt/${GITHUB_RUN_ID}"
+          git checkout -b "$branch"
+          echo "BUILDER_WORKING_BRANCH=$branch" >> "$GITHUB_ENV"
+          echo "[autobot] KNT durable checkpoint branch: $branch"
       - name: Validate KNT exact file contract
         run: |
           set -euo pipefail
@@ -102,22 +109,18 @@ jobs:
         if: success()
         run: |
           set -euo pipefail
-          mapfile -t product_changes < <(git diff --name-only -- src supabase package.json | sed '/^$/d')
-          if [ "${#product_changes[@]}" -eq 0 ]; then
-            echo 'AutoBot finished without verified KNT product changes; refusing a false-green checkpoint.'
+          if ! git diff --quiet; then
+            echo 'Unexpected uncommitted changes remain after checkpointing.'
+            git status --short
             exit 1
           fi
-          git restore -- builder/working builder/quality 2>/dev/null || true
-          rm -rf dist
-          git clean -fd -- builder/working builder/quality dist 2>/dev/null || true
-          branch="autonomous-builder-knt/${GITHUB_RUN_ID}"
-          git checkout -b "$branch"
-          git config user.name 'KNT Qwen Autonomous Builder'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- src supabase package.json
-          git commit -m 'feat: KNT proven Qwen AutoBot checkpoint'
-          git push --set-upstream origin "$branch"
-          echo "[autobot] VERIFIED KNT PRODUCT CHECKPOINT: $branch"
+          ahead=$(git rev-list --count "origin/${BUILDER_BASE_BRANCH}..HEAD")
+          if [ "$ahead" -lt 1 ]; then
+            echo 'AutoBot finished without a committed KNT product checkpoint; refusing a false-green result.'
+            exit 1
+          fi
+          git push --set-upstream origin "$BUILDER_WORKING_BRANCH"
+          echo "[autobot] VERIFIED KNT PRODUCT CHECKPOINT: $BUILDER_WORKING_BRANCH ($ahead commit(s) ahead of $BUILDER_BASE_BRANCH)"
           echo '[autobot] Actions cannot create PRs in this repository; checkpoint branch is ready for human review.'
       - name: Upload KNT AutoBot state
         if: always()
