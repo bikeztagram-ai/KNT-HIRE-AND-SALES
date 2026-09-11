@@ -1,15 +1,15 @@
-name: KNT Autonomous Builder — PROVEN Aider/Qwen
+name: KNT Autonomous Builder — PROVEN Qwen
 
 on:
   workflow_dispatch:
     inputs:
       max_units:
-        description: 'Safety ceiling for future deterministic work'
+        description: 'Safety ceiling for the autonomous run'
         required: false
         default: '1000'
         type: string
       duration:
-        description: 'Shared autonomous work time budget'
+        description: 'Autonomous work time budget'
         required: false
         default: '15m'
         type: choice
@@ -17,7 +17,7 @@ on:
       local_model:
         description: 'Local coding model'
         required: false
-        default: 'qwen2.5-coder:3b'
+        default: 'qwen2.5-coder:7b'
         type: string
 concurrency:
   group: knt-autonomous-builder
@@ -29,15 +29,16 @@ env:
   BUILDER_MAX_UNITS: ${{ inputs.max_units }}
   REQUESTED_DURATION: ${{ inputs.duration }}
   LOCAL_AI_MODEL: ${{ inputs.local_model }}
-  AUTOBOT_AIDER_MODEL: ollama_chat/${{ inputs.local_model }}
-  AUTOBOT_FEATURE_ENGINE: aider
-  AUTOBOT_FEATURE_PROTOCOL: aider-repo-map-v3
-  AUTOBOT_WORKER_CONFIG_VERSION: knt-proven-aider-v1
+  AUTOBOT_FEATURE_ENGINE: structured-search-replace-v3
+  AUTOBOT_FEATURE_PROTOCOL: structured-search-replace-v3
+  AUTOBOT_WORKER_CONFIG_VERSION: knt-proven-qwen-v5
   AUTOBOT_FINISH_GRACE_MINUTES: 5
   AUTOBOT_FEATURE_SLICE_MINUTES: 15
-  AUTOBOT_FEATURE_PASSES_PER_SLICE: 1
+  AUTOBOT_FEATURE_MAX_ATTEMPTS: 2
+  AUTOBOT_FEATURE_MAX_EDITS: 2
   AUTOBOT_MAX_FEATURE_CYCLES: 24
-  AUTOBOT_AIDER_CALL_TIMEOUT_MS: 900000
+  AUTOBOT_MAX_NO_PROGRESS_ITERATIONS: 2
+  LOCAL_AI_FEATURE_TIMEOUT_SECONDS: 330
   BUILDER_BASE_BRANCH: feature/knt-v1-foundation
 jobs:
   build:
@@ -55,8 +56,6 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund --no-package-lock
-      - name: Install proven Aider engine
-        run: python -m pip install --disable-pip-version-check --no-input aider-chat
       - name: Cache local Qwen model
         uses: actions/cache@v4
         with:
@@ -66,27 +65,6 @@ jobs:
         env:
           LOCAL_AI_MODEL: ${{ inputs.local_model }}
         run: bash scripts/autobot/install-local-brain.sh
-      - name: Start proven Ollama performance proxy
-        run: |
-          set -euo pipefail
-          nohup node builder/runner/ollama-performance-proxy.mjs >/tmp/knt-ollama-proxy.log 2>&1 &
-          proxy_ready=false
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:11435/health >/dev/null 2>&1; then proxy_ready=true; break; fi
-            sleep 1
-          done
-          if [ "$proxy_ready" != true ]; then
-            echo 'Performance proxy failed to start.'
-            cat /tmp/knt-ollama-proxy.log || true
-            exit 1
-          fi
-          echo 'OLLAMA_HOST=http://127.0.0.1:11435' >> "$GITHUB_ENV"
-          echo 'LOCAL_AI_PROXY_NUM_CTX=8192' >> "$GITHUB_ENV"
-          echo 'LOCAL_AI_PROXY_NUM_PREDICT=1500' >> "$GITHUB_ENV"
-          echo 'AUTOBOT_FEATURE_ENGINE=aider' >> "$GITHUB_ENV"
-          echo 'AUTOBOT_FEATURE_PROTOCOL=aider-repo-map-v3' >> "$GITHUB_ENV"
-          echo 'AUTOBOT_AIDER_MODEL=ollama_chat/${{ inputs.local_model }}' >> "$GITHUB_ENV"
-          echo '[autobot] proven KNT Aider repo-map engine selected; local Ollama proxy ready'
       - name: Resolve duration
         run: |
           set -euo pipefail
@@ -95,64 +73,57 @@ jobs:
             *) echo "Unsupported duration: $REQUESTED_DURATION"; exit 1;;
           esac
           echo "BUILDER_MAX_MINUTES=$minutes" >> "$GITHUB_ENV"
-          echo "[autobot] KNT proven Aider/Qwen budget: ${minutes}m + ${AUTOBOT_FINISH_GRACE_MINUTES}m finish grace"
+          echo "[autobot] KNT proven Qwen budget: ${minutes}m + ${AUTOBOT_FINISH_GRACE_MINUTES}m finish grace"
       - name: Validate KNT exact file contract
         run: |
           set -euo pipefail
           node --check scripts/autobot/verify-knt-file-contract.mjs
           node scripts/autobot/verify-knt-file-contract.mjs
-      - name: Validate proven Aider AutoBot
+      - name: Validate KNT Qwen AutoBot
         run: |
           set -euo pipefail
-          test "$AUTOBOT_FEATURE_ENGINE" = aider
-          test "$AUTOBOT_FEATURE_PROTOCOL" = aider-repo-map-v3
-          test "$AUTOBOT_FEATURE_SLICE_MINUTES" = 15
-          test "$AUTOBOT_FEATURE_PASSES_PER_SLICE" = 1
-          test -f builder/runner/aider-feature-brain.mjs
-          test -f builder/runner/aider-state-store.mjs
+          test "$AUTOBOT_FEATURE_ENGINE" = structured-search-replace-v3
+          test "$AUTOBOT_FEATURE_PROTOCOL" = structured-search-replace-v3
+          test -f builder/runner/feature-brain.mjs
           test -f builder/runner/long-run-executor.mjs
-          test -f builder/runner/ollama-performance-proxy.mjs
           test -f builder/quality/audit-log.mjs
-          node --check builder/runner/aider-feature-brain.mjs
-          node --check builder/runner/aider-state-store.mjs
+          node --check builder/runner/feature-brain.mjs
           node --check builder/runner/long-run-executor.mjs
-          node --check builder/runner/ollama-performance-proxy.mjs
           node --check builder/quality/audit-log.mjs
           node scripts/autobot/repository-intelligence.mjs
           curl -fsS "$OLLAMA_HOST/api/tags" >/dev/null
-          echo '[autobot] KNT proven Aider/Qwen safety checks passed.'
-      - name: Run proven sustained KNT Aider/Qwen builder
+          echo '[autobot] KNT Qwen repository-aware safety checks passed.'
+      - name: Run sustained KNT Qwen builder
         run: node builder/runner/long-run-executor.mjs
       - name: Production verification
         if: success()
         run: npm run build
-      - name: Publish verified product checkpoint branch
+      - name: Publish verified KNT product checkpoint branch
         if: success()
         run: |
           set -euo pipefail
           mapfile -t product_changes < <(git diff --name-only -- src supabase package.json | sed '/^$/d')
           if [ "${#product_changes[@]}" -eq 0 ]; then
-            echo 'AutoBot finished without verified product changes; refusing a false-green checkpoint.'
+            echo 'AutoBot finished without verified KNT product changes; refusing a false-green checkpoint.'
             exit 1
           fi
           git restore -- builder/working builder/quality 2>/dev/null || true
-          rm -f .aider.chat.history.md .aider.input.history
-          rm -rf .aider.tags.cache.v4 dist
-          git clean -fd -- builder/working builder/quality .aider.tags.cache.v4 dist 2>/dev/null || true
+          rm -rf dist
+          git clean -fd -- builder/working builder/quality dist 2>/dev/null || true
           branch="autonomous-builder-knt/${GITHUB_RUN_ID}"
           git checkout -b "$branch"
-          git config user.name 'KNT Proven Aider Autonomous Builder'
+          git config user.name 'KNT Qwen Autonomous Builder'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -- src supabase package.json
-          git commit -m 'feat: KNT proven Aider AutoBot checkpoint'
+          git commit -m 'feat: KNT proven Qwen AutoBot checkpoint'
           git push --set-upstream origin "$branch"
-          echo "[autobot] VERIFIED PRODUCT CHECKPOINT: $branch"
-          echo "[autobot] Actions cannot create PRs in this repository; review the pushed checkpoint branch manually."
-      - name: Upload AutoBot state
+          echo "[autobot] VERIFIED KNT PRODUCT CHECKPOINT: $branch"
+          echo '[autobot] Actions cannot create PRs in this repository; checkpoint branch is ready for human review.'
+      - name: Upload KNT AutoBot state
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: knt-aider-autobot-${{ github.run_id }}
+          name: knt-qwen-autobot-${{ github.run_id }}
           path: |
             builder/working/*.json
             builder/working/*.jsonl
