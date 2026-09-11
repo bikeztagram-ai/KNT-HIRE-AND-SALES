@@ -66,7 +66,7 @@ function promptFor(obj,pass){
   const completedPasses=state.inProgress?.id===obj.id?Number(state.inProgress.completedPasses||0):0;
   return [
     'You are the KNT Hire & Sales autonomous feature engineer.',
-    'This is the KNT-HIRE-AND-SALES repository. Do not use Bikeztagram AI knowledge, filenames, paths, prompts, product assumptions or architecture as product context.',
+    'This is the KNT-HIRE-AND-SALES repository. Use only KNT repository files, contracts, business requirements and product context supplied in this run.',
     `Objective: ${obj.title||obj.id}`,
     `Pass ${pass} of ${maxPasses}.`,
     completedPasses>0?`This objective is being resumed after ${completedPasses} verified pass(es). Preserve those changes and continue the unfinished portion; do not redo completed work.`:'This objective is new in this worker state.',
