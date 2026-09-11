@@ -19,7 +19,7 @@ The KNT repository is the only product context for the autonomous builder. The e
 
 The Aider feature engineer receives those exact objective-scoped paths and, when all paths are under `src/`, runs from the `src/` subtree with the exact relative filenames. Repository intelligence is generated from `git ls-files` for the current KNT repository and is never imported from another project.
 
-Every objective file must exist and be tracked before the autonomous feature pass starts. The KNT file-contract check must remain green. Bikeztagram AI, GTA VI and other unrelated product names, paths and product assumptions must never appear in KNT product-engineering prompts or file scopes.
+Every objective file must exist and be tracked before the autonomous feature pass starts. The KNT file-contract check must remain green. Product-engineering prompts must use only KNT business requirements, current repository files and current KNT contracts.
 
 ## Decisions still requiring validation
 Exact technology stack, authentication roles, pricing/tax rules, invoice numbering, data retention, backup strategy, and production deployment configuration.
