@@ -1,7 +1,8 @@
 import { supabase } from './supabase';
 function requireCloud(){if(!supabase)throw new Error('Cloud database is not configured.');}
-async function rows(table, builder){requireCloud();const {data,error}=await builder(supabase.from(table));if(error)throw error;return data??[];}
+async function rows(table,builder){requireCloud();const {data,error}=await builder(supabase.from(table));if(error)throw error;return Array.isArray(data)?data:(data?[data]:[]);}
 async function one(table,input){requireCloud();const {data,error}=await supabase.from(table).insert(input).select().single();if(error)throw error;return data;}
+async function single(table,builder){requireCloud();const {data,error}=await builder(supabase.from(table)).single();if(error)throw error;return data;}
 async function update(table,id,input){requireCloud();const {data,error}=await supabase.from(table).update(input).eq('id',id).select().single();if(error)throw error;return data;}
 export const listCustomers=()=>rows('customers',q=>q.select('*').order('name'));
 export const createCustomer=input=>one('customers',input);
@@ -10,11 +11,11 @@ export const listSites=customerId=>rows('sites',q=>{let x=q.select('*').order('n
 export const createSite=input=>one('sites',input);
 export const updateSite=(id,input)=>update('sites',id,input);
 export const listForklifts=()=>rows('forklifts',q=>q.select('*, customers(name), sites(name)').order('plant_number'));
-export const getForklift=id=>rows('forklifts',q=>q.select('*, customers(name), sites(name)').eq('id',id).single()).then(x=>x[0]);
+export const getForklift=id=>single('forklifts',q=>q.select('*, customers(name), sites(name)').eq('id',id));
 export const createForklift=input=>one('forklifts',input);
 export const updateForklift=(id,input)=>update('forklifts',id,input);
 export const listJobs=()=>rows('jobs',q=>q.select('*, customers(name), sites(name), forklifts(plant_number,make,model,serial_number)').order('job_date',{ascending:false}));
-export const getJob=id=>rows('jobs',q=>q.select('*, customers(name), sites(name), forklifts(plant_number,make,model,serial_number)').eq('id',id).single()).then(x=>x[0]);
+export const getJob=id=>single('jobs',q=>q.select('*, customers(name), sites(name), forklifts(plant_number,make,model,serial_number)').eq('id',id));
 export const createJob=input=>one('jobs',input);
 export const updateJob=(id,input)=>update('jobs',id,input);
 export const addJobPhoto=async(jobId,file,tag='evidence',caption='')=>{const path=await uploadJobFile(jobId,file);return one('job_photos',{job_id:jobId,storage_path:path,tag,caption});};
