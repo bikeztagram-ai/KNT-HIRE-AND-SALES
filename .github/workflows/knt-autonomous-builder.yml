@@ -58,6 +58,7 @@ jobs:
           BUILDER_OBJECTIVE: ${{ inputs.objective }}
           BUILDER_VERIFY_COMMANDS: npm run build
           BUILDER_PROTECTED_PATHS: .github/workflows/,builder/runner/
+          BUILDER_AGENT_CMD: '["npx","--yes","@openai/codex@0.149.1","exec","--cd","/vercel/sandbox/repo","--sandbox","danger-full-access"]'
         run: node builder/runner/task-driven.mjs
 
       - name: Upload builder report
