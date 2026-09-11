@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** KNT file contract: exact objective paths are the source of truth for the local Qwen engineer. */
+/** KNT file contract: objective paths and the local Qwen feature protocol are the source of truth. */
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -25,15 +25,15 @@ for(const objective of objectives){
 const runner=read('builder/runner/feature-brain.mjs');
 const checks=[
   ['loads KNT objectives',runner.includes("builder/brain/feature-objectives.json")],
-  ['uses objective file list',runner.includes('obj.files')&&runner.includes('allowed=new Set(obj.files')],
-  ['uses KNT repository intelligence',runner.includes("builder/working/repository-map.json")&&runner.includes('refreshRepoMap')],
-  ['uses exact filename authority',runner.includes('repository path and filename supplied for each file are authoritative')],
-  ['strict file scope',runner.includes('Modify ONLY the exact KNT product files')&&runner.includes('out-of-scope KNT edit')],
-  ['exact search anchors',runner.includes('must occur exactly once')],
-  ['durable retry state',runner.includes('state.failed')&&runner.includes('resetFailedEdits')],
-  ['structured model output',runner.includes('format:editSchema')],
-  ['local Qwen only',runner.includes('local KNT Qwen is not ready; refusing paid fallback')],
-  ['no unrelated builder edit request',!runner.includes('Modify builder infrastructure')||runner.includes('Do not modify builder infrastructure')]
+  ['uses objective file list',runner.includes('new Set(o.files||[])')&&runner.includes('allowed.has(e.file)')],
+  ['uses KNT repository intelligence',runner.includes("builder/working/repository-map.json")&&runner.includes('function refresh()')],
+  ['exact filename/path authority',runner.includes('objective files')&&runner.includes('o.files||[]')],
+  ['strict file scope',runner.includes('Modify ONLY objective files')&&runner.includes('out-of-scope edit')],
+  ['exact search anchors',runner.includes('SEARCH must be copied literally')&&runner.includes('count!==1')],
+  ['durable retry state',runner.includes('state.failed')&&runner.includes('function reset()')],
+  ['structured model output',runner.includes('const schema=')&&runner.includes('format:schema')],
+  ['local Qwen only',runner.includes("LOCAL_AI_READY!=='1'")&&runner.includes('refusing paid fallback')],
+  ['builder infrastructure protected',runner.includes('Never touch workflows, builder code, package manifests')]
 ];
 for(const [name,ok] of checks)if(!ok)failures.push(name);
 if(failures.length){console.error('KNT file contract FAIL:\n'+failures.map(x=>`- ${x}`).join('\n'));process.exit(1);}
