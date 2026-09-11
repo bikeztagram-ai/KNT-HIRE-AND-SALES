@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 130
     steps:
-      - name: Checkout builder control plane
+      - name: Checkout KNT builder control plane
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
