@@ -9,7 +9,10 @@ const MAX_MINUTES=Math.max(15,Math.min(Number(process.env.BUILDER_MAX_MINUTES||1
 const MAX_PASSES=Math.max(1,Math.min(Number(process.env.BUILDER_MAX_PASSES||8),8));
 const ROOT='/vercel/sandbox',REPO_DIR=`${ROOT}/repo`,ASKPASS=`${ROOT}/git-askpass.sh`;
 const PROTECTED=(process.env.BUILDER_PROTECTED_PATHS||'.github/workflows/,builder/runner/').split(',').map(x=>x.trim()).filter(Boolean);
-const AGENT_CMD=process.env.BUILDER_AGENT_CMD?JSON.parse(process.env.BUILDER_AGENT_CMD):['npx','--yes','@openai/codex@0.150.0','exec','--full-auto'];
+// Pin the known-good CLI for the sandbox worker. Codex 0.150.x introduced
+// exec-mode regressions and changed/deprecated automation flags; 0.149.1 is
+// retained here until a newer release is explicitly smoke-tested in CI.
+const AGENT_CMD=process.env.BUILDER_AGENT_CMD?JSON.parse(process.env.BUILDER_AGENT_CMD):['npx','--yes','@openai/codex@0.149.1','exec','--full-auto'];
 const OBJECTIVE=process.env.BUILDER_OBJECTIVE||'Execute the highest-priority ready objective from config/autonomous-builder-queue.json and continue through coherent KNT work until the run budget is exhausted.';
 const VERIFY_COMMANDS=(process.env.BUILDER_VERIFY_COMMANDS||'npm run build').split(',').map(x=>x.trim()).filter(Boolean);
 const COMMAND_TIMEOUT_MS=Math.max(60_000,Math.min(Number(process.env.BUILDER_COMMAND_TIMEOUT_MS||18*60*1000),MAX_MINUTES*60*1000));
