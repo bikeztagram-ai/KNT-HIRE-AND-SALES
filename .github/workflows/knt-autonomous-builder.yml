@@ -1,0 +1,68 @@
+name: KNT Autonomous Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'Maximum builder run length (15-120)'
+        required: false
+        default: '120'
+      passes:
+        description: 'Maximum repair/build passes (1-8)'
+        required: false
+        default: '8'
+      objective:
+        description: 'Optional explicit KNT objective; leave blank to use the durable queue'
+        required: false
+        default: ''
+      resume_branch:
+        description: 'Existing autonomous-builder branch to resume, if any'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    steps:
+      - name: Checkout builder control plane
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install builder dependencies
+        run: npm install --no-audit --no-fund --no-package-lock
+
+      - name: Run KNT AutoBot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          BUILDER_REPO_URL: https://github.com/bikeztagram-ai/KNT-HIRE-AND-SALES.git
+          BUILDER_BASE_BRANCH: feature/knt-v1-foundation
+          BUILDER_WORKING_BRANCH: ${{ inputs.resume_branch != '' && inputs.resume_branch || format('autonomous-builder/knt-{0}', github.run_id) }}
+          BUILDER_BATCH_ID: ${{ format('knt-{0}', github.run_id) }}
+          BUILDER_MAX_MINUTES: ${{ inputs.minutes }}
+          BUILDER_MAX_PASSES: ${{ inputs.passes }}
+          BUILDER_OBJECTIVE: ${{ inputs.objective }}
+          BUILDER_VERIFY_COMMANDS: npm run build
+          BUILDER_PROTECTED_PATHS: .github/workflows/,builder/runner/
+        run: node builder/runner/task-driven.mjs
+
+      - name: Upload builder report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knt-autobot-report-${{ github.run_id }}
+          path: /tmp/builder-report/*.json
+          if-no-files-found: ignore
