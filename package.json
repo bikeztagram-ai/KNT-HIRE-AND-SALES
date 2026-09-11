@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "autobot": "node builder/runner/task-driven.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "latest",
+    "@vercel/sandbox": "latest",
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
     "react": "latest",
