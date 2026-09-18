@@ -19,10 +19,10 @@ const git=(args,opts={})=>execFileSync('git',args,{cwd:root,encoding:'utf8',...o
 const productSnapshot=()=>{try{return git(['diff','--name-only','--','src','supabase','package.json']).trim()}catch{return''}};
 function writeState(status,cycles,successes,failures,noProgress){
   fs.mkdirSync(path.dirname(statePath),{recursive:true});
-  fs.writeFileSync(statePath,JSON.stringify({schemaVersion:8,status,engine:'aider-repo-map-v3',model:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',requestedMinutes,finishGraceMinutes:grace,featureSliceMinutes,maxCycles,maxNoProgress,cycles,successes,failures,consecutiveNoProgress:noProgress,checkpointBranch:process.env.BUILDER_WORKING_BRANCH||null,startedAt:new Date(started).toISOString(),normalDeadline:new Date(normalDeadline).toISOString(),hardDeadline:new Date(hardDeadline).toISOString(),elapsedMinutes:Number(((Date.now()-started)/60000).toFixed(2)),remainingMinutes:Number((remaining()/60000).toFixed(2)),updatedAt:new Date().toISOString()},null,2)+'\n');
+  fs.writeFileSync(statePath,JSON.stringify({schemaVersion:8,status,engine:'aider-repo-map-v4',model:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',requestedMinutes,finishGraceMinutes:grace,featureSliceMinutes,maxCycles,maxNoProgress,cycles,successes,failures,consecutiveNoProgress:noProgress,checkpointBranch:process.env.BUILDER_WORKING_BRANCH||null,startedAt:new Date(started).toISOString(),normalDeadline:new Date(normalDeadline).toISOString(),hardDeadline:new Date(hardDeadline).toISOString(),elapsedMinutes:Number(((Date.now()-started)/60000).toFixed(2)),remainingMinutes:Number((remaining()/60000).toFixed(2)),updatedAt:new Date().toISOString()},null,2)+'\n');
 }
 function runFeature(slice){
-  const env={...process.env,BUILDER_MAX_MINUTES:String(Math.max(1,slice)),LOCAL_AI_MODEL:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',AUTOBOT_FEATURE_PASSES:'1',AUTOBOT_FEATURE_MAX_ATTEMPTS:process.env.AUTOBOT_FEATURE_MAX_ATTEMPTS||'2',AUTOBOT_FEATURE_MAX_EDITS:process.env.AUTOBOT_FEATURE_MAX_EDITS||'2',AUTOBOT_FEATURE_DEADLINE_EPOCH_MS:String(hardDeadline),AUTOBOT_FEATURE_NORMAL_DEADLINE_EPOCH_MS:String(normalDeadline)};
+  const env={...process.env,BUILDER_MAX_MINUTES:String(Math.max(1,slice)),LOCAL_AI_MODEL:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',AUTOBOT_FEATURE_PASSES:process.env.AUTOBOT_FEATURE_PASSES||'2',AUTOBOT_FEATURE_MAX_ATTEMPTS:process.env.AUTOBOT_FEATURE_MAX_ATTEMPTS||'2',AUTOBOT_FEATURE_MAX_EDITS:process.env.AUTOBOT_FEATURE_MAX_EDITS||'2',AUTOBOT_FEATURE_DEADLINE_EPOCH_MS:String(hardDeadline),AUTOBOT_FEATURE_NORMAL_DEADLINE_EPOCH_MS:String(normalDeadline)};
   return spawnSync(process.execPath,['builder/runner/feature-brain.mjs'],{cwd:root,stdio:'inherit',env,timeout:Math.max(60000,remaining()-5000)});
 }
 function checkpoint(cycle){
@@ -37,7 +37,7 @@ function checkpoint(cycle){
 if(!verifyAuditLog().valid)process.exit(3);
 let cycles=0,successes=0,failures=0,noProgress=0;
 writeState('running',0,0,0,0);
-appendAudit('knt-long-run-started',{requestedMinutes,grace,featureSliceMinutes,maxCycles,maxNoProgress,engine:'structured-search-replace-v3',model:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',checkpointBranch:process.env.BUILDER_WORKING_BRANCH||null});
+appendAudit('knt-long-run-started',{requestedMinutes,grace,featureSliceMinutes,maxCycles,maxNoProgress,engine:'aider-repo-map-v4',model:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',checkpointBranch:process.env.BUILDER_WORKING_BRANCH||null});
 while(normalRemaining()>35000&&remaining()>60000&&cycles<maxCycles){
   cycles++;
   const before=productSnapshot();
