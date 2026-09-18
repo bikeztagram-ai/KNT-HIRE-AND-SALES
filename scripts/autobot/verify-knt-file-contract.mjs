@@ -35,7 +35,7 @@ const checks=[
  ['diff verification',runner.includes("['diff','--check']")],
  ['build verification',runner.includes("['run','build']")],
  ['no automatic commits',runner.includes('--no-auto-commits')&&runner.includes('--no-dirty-commits')],
- ['business safety',runner.includes('evidence')&&runner.includes('human-invoice-review')],
+ ['business safety',runner.includes('original evidence')&&runner.includes('human-invoice-review')],
  ['local model',runner.includes('LOCAL_AI_MODEL')&&runner.includes('ollama_chat')]
 ];
 for(const [name,ok] of checks)if(!ok)failures.push(name);
