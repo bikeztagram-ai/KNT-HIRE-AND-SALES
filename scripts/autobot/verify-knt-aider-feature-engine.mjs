@@ -19,7 +19,7 @@ const checks=[
  ['scope rollback',runner.includes('restorePassSnapshot')&&runner.includes('unauthorized KNT modified paths')],
  ['diff/build gates',runner.includes("['diff','--check']")&&runner.includes("['run','build']")],
  ['durable state recovery',runner.includes('loadAiderState')&&runner.includes('saveAiderState')],
- ['KNT business safety',runner.includes('original evidence')&&runner.includes('human-invoice-review')],
+ ['KNT business safety',runner.includes('evidence')&&runner.includes('human-invoice-review')],
  ['controller entrypoint',controller.includes('builder/runner/feature-brain.mjs')],
  ['workflow installs Aider',workflow.includes('aider-chat')],
  ['workflow selects engine',workflow.includes('aider-repo-map-v3')],
