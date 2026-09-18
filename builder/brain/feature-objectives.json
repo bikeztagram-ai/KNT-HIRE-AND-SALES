@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "engine": "structured-search-replace-v3",
+  "engine": "aider-repo-map-v4",
   "objectives": [
     {"id":"KNT-002A","priority":110,"title":"Make fleet and forklift detail a complete engineer workflow","files":["src/App.jsx","src/FleetPage.jsx","src/ForkliftDetailPage.jsx"],"acceptance":["Fleet cards open the correct forklift detail record","Forklift detail exposes customer, site, identity, hours, status and due dates","Forklift detail links useful job and compliance history","Loading, empty and error states are truthful"],"constraints":["Do not redesign unrelated screens","Do not fabricate business data","Do not modify builder infrastructure"]},
     {"id":"KNT-002B","priority":105,"title":"Make the jobsheet workflow complete and reviewable","dependsOn":["KNT-002A"],"files":["src/NewJobPage.jsx","src/JobDetailPage.jsx","src/lib/data.js"],"acceptance":["Jobs can be created with customer, site, forklift, work details and evidence","A saved job reloads with its evidence and signature","Job status can be reviewed and completed safely","Important save failures are visible to the engineer"],"constraints":["Preserve original evidence","Do not fabricate OCR or AI results","Preserve existing Supabase contracts"]},
