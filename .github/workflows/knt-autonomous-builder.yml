@@ -9,11 +9,11 @@ on:
         default: '1000'
         type: string
       duration:
-        description: 'Autonomous work time budget'
+        description: 'Total autonomous work budget (automatically segmented under GitHub job limits)'
         required: false
         default: '15m'
         type: choice
-        options: ['15m','30m','1h','2h','3h','4h','5h','6h']
+        options: ['15m','30m','1h','2h','3h','4h','5h','5h30m']
       local_model:
         description: 'Local coding model'
         required: false
@@ -31,19 +31,22 @@ env:
   LOCAL_AI_MODEL: ${{ inputs.local_model }}
   AUTOBOT_AIDER_MODEL: ollama_chat/${{ inputs.local_model }}
   AUTOBOT_FEATURE_ENGINE: aider-repo-map-v4
+  AUTOBOT_FEATURE_PROTOCOL: aider-repo-map-v4
   AUTOBOT_WORKER_CONFIG_VERSION: knt-proven-aider-v4
   AUTOBOT_FINISH_GRACE_MINUTES: 5
   AUTOBOT_FEATURE_SLICE_MINUTES: 20
   AUTOBOT_FEATURE_PASSES: 2
+  AUTOBOT_FEATURE_PASSES_PER_SLICE: 2
   AUTOBOT_FEATURE_MAX_ATTEMPTS: 2
   AUTOBOT_MAX_FEATURE_CYCLES: 24
   AUTOBOT_MAX_NO_PROGRESS_ITERATIONS: 2
   BUILDER_BASE_BRANCH: feature/knt-v1-foundation
+  AUTOBOT_SEGMENT_MAX_MINUTES: 300
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 370
+    timeout-minutes: 360
     steps:
       - name: Checkout KNT product baseline
         uses: actions/checkout@v5
@@ -77,14 +80,20 @@ jobs:
           echo 'OLLAMA_HOST=http://127.0.0.1:11435' >> "$GITHUB_ENV"
           echo 'LOCAL_AI_PROXY_NUM_CTX=8192' >> "$GITHUB_ENV"
           echo 'LOCAL_AI_PROXY_NUM_PREDICT=1500' >> "$GITHUB_ENV"
-      - name: Resolve duration
+      - name: Resolve total and safe segment budget
         run: |
           set -euo pipefail
           case "$REQUESTED_DURATION" in
-            15m) minutes=15;; 30m) minutes=30;; 1h) minutes=60;; 2h) minutes=120;; 3h) minutes=180;; 4h) minutes=240;; 5h) minutes=300;; 6h) minutes=360;;
-            *) exit 1;;
+            15m) total=15;; 30m) total=30;; 1h) total=60;; 2h) total=120;; 3h) total=180;; 4h) total=240;; 5h) total=300;; 5h30m) total=330;;
+            *) echo "Unsupported duration: $REQUESTED_DURATION"; exit 1;;
           esac
-          echo "BUILDER_MAX_MINUTES=$minutes" >> "$GITHUB_ENV"
+          segment="$total"
+          if [ "$segment" -gt "$AUTOBOT_SEGMENT_MAX_MINUTES" ]; then segment="$AUTOBOT_SEGMENT_MAX_MINUTES"; fi
+          echo "TOTAL_BUILDER_MINUTES=$total" >> "$GITHUB_ENV"
+          echo "BUILDER_MAX_MINUTES=$segment" >> "$GITHUB_ENV"
+          echo "BUILDER_SEGMENT=1" >> "$GITHUB_ENV"
+          echo "AUTOBOT_TOTAL_BUDGET_MINUTES=$total" >> "$GITHUB_ENV"
+          echo "[autobot] total budget=${total}m; this job segment=${segment}m; continuation will carry remaining budget safely."
       - name: Create durable KNT checkpoint branch
         run: |
           set -euo pipefail
@@ -100,6 +109,9 @@ jobs:
         run: |
           set -euo pipefail
           test "$AUTOBOT_FEATURE_ENGINE" = aider-repo-map-v4
+          test "$AUTOBOT_FEATURE_PROTOCOL" = aider-repo-map-v4
+          test "$AUTOBOT_FEATURE_SLICE_MINUTES" = 20
+          test "$AUTOBOT_FEATURE_PASSES" = 2
           node --check builder/runner/aider-feature-brain.mjs
           node --check builder/runner/aider-state-store.mjs
           node --check builder/runner/ollama-performance-proxy.mjs
@@ -107,7 +119,7 @@ jobs:
           node scripts/autobot/verify-knt-aider-feature-engine.mjs
           node scripts/autobot/repository-intelligence.mjs
           test -f builder/brain/knt-autobot-product-directive.md
-          curl -fsS "$OLLAMA_HOST/api/tags" >/dev/null
+          curl -fsS "$OLLAMA_API_BASE/api/tags" >/dev/null
       - name: Run sustained KNT Aider builder
         run: node builder/runner/long-run-executor.mjs
       - name: Production verification
@@ -122,6 +134,36 @@ jobs:
           test "$ahead" -ge 1
           git push --set-upstream origin "$BUILDER_WORKING_BRANCH"
           echo "[autobot] VERIFIED KNT PRODUCT CHECKPOINT: $BUILDER_WORKING_BRANCH"
+      - name: Calculate remaining shared budget
+        id: budget
+        if: success()
+        run: |
+          set -euo pipefail
+          state='builder/working/long-run-state.json'
+          test -s "$state"
+          used="$(node -e "const s=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log(Math.max(0,Math.ceil(Number(s.elapsedMinutes||0))) )" "$state")"
+          remaining=$(( TOTAL_BUILDER_MINUTES - used ))
+          if [ "$remaining" -lt 0 ]; then remaining=0; fi
+          no_progress="$(node -e "const s=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log(Number(s.consecutiveNoProgress||0))" "$state")"
+          echo "used=$used" >> "$GITHUB_OUTPUT"
+          echo "remaining=$remaining" >> "$GITHUB_OUTPUT"
+          echo "no_progress=$no_progress" >> "$GITHUB_OUTPUT"
+          echo "[autobot] segment used=${used}m; shared budget remaining=${remaining}m; consecutive no-progress=${no_progress}"
+
+      - name: Dispatch next KNT continuation segment
+        if: success() && steps.budget.outputs.remaining != '0' && steps.budget.outputs.no_progress != '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run knt-autonomous-builder-continuation.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$BUILDER_WORKING_BRANCH" \
+            -f continuation_ref="$BUILDER_WORKING_BRANCH" \
+            -f remaining_minutes="${{ steps.budget.outputs.remaining }}" \
+            -f max_units="$BUILDER_MAX_UNITS" \
+            -f local_model="$LOCAL_AI_MODEL" \
+            -f total_budget_minutes="$TOTAL_BUILDER_MINUTES"
       - name: Upload KNT AutoBot state
         if: always()
         uses: actions/upload-artifact@v4
