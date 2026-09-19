@@ -57,7 +57,7 @@ while(normalRemaining()>35000&&remaining()>60000&&cycles<maxCycles){
   if(noProgress>=maxNoProgress){console.log(`[autobot] KNT safe stop: ${noProgress} consecutive no-progress cycles.`);break;}
   if(remaining()>60000)spawnSync('sleep',['2'],{timeout:5000});
 }
-const finished={cycles,successes,failures,consecutiveNoProgress:noProgress,elapsedMinutes:Number(((Date.now()-started)/60000).toFixed(2)),remainingMinutes:Number((remaining()/60000).toFixed(2)),engine:'structured-search-replace-v3',model:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',checkpointBranch:process.env.BUILDER_WORKING_BRANCH||null};
+const finished={cycles,successes,failures,consecutiveNoProgress:noProgress,elapsedMinutes:Number(((Date.now()-started)/60000).toFixed(2)),remainingMinutes:Number((remaining()/60000).toFixed(2)),engine:'aider-repo-map-v4',model:process.env.LOCAL_AI_MODEL||'qwen2.5-coder:7b',checkpointBranch:process.env.BUILDER_WORKING_BRANCH||null};
 writeState('finished',cycles,successes,failures,noProgress);
 appendAudit('knt-long-run-finished',finished);
 if(!verifyAuditLog().valid)process.exit(3);
