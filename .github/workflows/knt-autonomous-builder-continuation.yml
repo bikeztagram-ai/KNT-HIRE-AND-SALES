@@ -1,0 +1,170 @@
+name: KNT Autonomous Builder — continuation segment
+
+on:
+  workflow_dispatch:
+    inputs:
+      continuation_ref:
+        description: 'Checkpoint branch produced by the previous KNT AutoBot segment'
+        required: true
+        type: string
+      remaining_minutes:
+        description: 'Remaining shared work budget in minutes'
+        required: true
+        type: string
+      total_budget_minutes:
+        description: 'Original total work budget in minutes'
+        required: true
+        type: string
+      max_units:
+        description: 'Verified-unit ceiling'
+        required: false
+        default: '1000'
+        type: string
+      local_model:
+        description: 'Local coding model'
+        required: false
+        default: 'qwen2.5-coder:7b'
+        type: string
+
+concurrency:
+  group: knt-autonomous-builder
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  continue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout KNT checkpoint
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.continuation_ref }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund --no-package-lock
+
+      - name: Install proven Aider engine
+        run: python -m pip install --disable-pip-version-check --no-input aider-chat
+
+      - name: Cache local Qwen model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: knt-local-qwen-${{ runner.os }}-${{ inputs.local_model }}
+
+      - name: Start local Qwen brain
+        env:
+          LOCAL_AI_MODEL: ${{ inputs.local_model }}
+        run: bash scripts/autobot/install-local-brain.sh
+
+      - name: Start KNT Ollama performance proxy
+        run: |
+          set -euo pipefail
+          nohup node builder/runner/ollama-performance-proxy.mjs >/tmp/knt-ollama-proxy.log 2>&1 &
+          proxy_ready=false
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:11435/health >/dev/null 2>&1; then proxy_ready=true; break; fi
+            sleep 1
+          done
+          if [ "$proxy_ready" != true ]; then cat /tmp/knt-ollama-proxy.log || true; exit 1; fi
+          echo 'OLLAMA_API_BASE=http://127.0.0.1:11435' >> "$GITHUB_ENV"
+          echo 'OLLAMA_HOST=http://127.0.0.1:11435' >> "$GITHUB_ENV"
+          echo 'LOCAL_AI_FEATURE_TIMEOUT_SECONDS=120' >> "$GITHUB_ENV"
+          echo 'LOCAL_AI_PROXY_NUM_CTX=8192' >> "$GITHUB_ENV"
+          echo 'LOCAL_AI_PROXY_NUM_PREDICT=2200' >> "$GITHUB_ENV"
+
+      - name: Resolve safe continuation budget
+        run: |
+          set -euo pipefail
+          [[ "$REMAINING_MINUTES" =~ ^[0-9]+$ ]]
+          test "$REMAINING_MINUTES" -gt 0
+          test "$REMAINING_MINUTES" -le 330
+          segment="$REMAINING_MINUTES"
+          if [ "$segment" -gt 300 ]; then segment=300; fi
+          echo "TOTAL_BUILDER_MINUTES=$TOTAL_BUDGET_MINUTES" >> "$GITHUB_ENV"
+          echo "BUILDER_MAX_MINUTES=$segment" >> "$GITHUB_ENV"
+          echo "BUILDER_WORKING_BRANCH=$CONTINUATION_REF" >> "$GITHUB_ENV"
+          echo "BUILDER_BASE_BRANCH=feature/knt-v1-foundation" >> "$GITHUB_ENV"
+          echo "AUTOBOT_AIDER_MODEL=ollama_chat/$LOCAL_AI_MODEL" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FEATURE_ENGINE=aider-repo-map-v4" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FEATURE_PROTOCOL=aider-repo-map-v4" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FEATURE_SLICE_MINUTES=20" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FEATURE_PASSES=2" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FEATURE_PASSES_PER_SLICE=2" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FEATURE_MAX_ATTEMPTS=2" >> "$GITHUB_ENV"
+          echo "AUTOBOT_MAX_FEATURE_CYCLES=24" >> "$GITHUB_ENV"
+          echo "AUTOBOT_MAX_NO_PROGRESS_ITERATIONS=2" >> "$GITHUB_ENV"
+          echo "AUTOBOT_FINISH_GRACE_MINUTES=5" >> "$GITHUB_ENV"
+          echo "[autobot] continuation budget=${segment}m; shared remaining=${REMAINING_MINUTES}m"
+
+      - name: Validate KNT continuation contract
+        run: |
+          set -euo pipefail
+          test -f builder/brain/knt-autobot-product-directive.md
+          node --check builder/runner/aider-feature-brain.mjs
+          node --check builder/runner/long-run-executor.mjs
+          node scripts/autobot/verify-knt-aider-feature-engine.mjs
+
+      - name: Run bounded KNT continuation
+        run: node builder/runner/long-run-executor.mjs
+
+      - name: Production verification
+        if: success()
+        run: npm run build
+
+      - name: Publish continuation checkpoint
+        if: success()
+        run: |
+          set -euo pipefail
+          git diff --quiet
+          git push origin "$CONTINUATION_REF"
+
+      - name: Calculate remaining shared budget
+        id: budget
+        if: success()
+        run: |
+          set -euo pipefail
+          state='builder/working/long-run-state.json'
+          test -s "$state"
+          used="$(node -e "const s=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log(Math.max(0,Math.ceil(Number(s.elapsedMinutes||0))) )" "$state")"
+          remaining=$(( TOTAL_BUILDER_MINUTES - used ))
+          if [ "$remaining" -lt 0 ]; then remaining=0; fi
+          no_progress="$(node -e "const s=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log(Number(s.consecutiveNoProgress||0))" "$state")"
+          echo "remaining=$remaining" >> "$GITHUB_OUTPUT"
+          echo "no_progress=$no_progress" >> "$GITHUB_OUTPUT"
+          echo "[autobot] continuation used=${used}m; shared remaining=${remaining}m; no-progress=${no_progress}"
+
+      - name: Dispatch next KNT continuation
+        if: success() && steps.budget.outputs.remaining != '0' && steps.budget.outputs.no_progress != '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run knt-autonomous-builder-continuation.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$CONTINUATION_REF" \
+            -f continuation_ref="$CONTINUATION_REF" \
+            -f remaining_minutes="${{ steps.budget.outputs.remaining }}" \
+            -f total_budget_minutes="$TOTAL_BUDGET_MINUTES" \
+            -f max_units="$BUILDER_MAX_UNITS" \
+            -f local_model="$LOCAL_AI_MODEL"
+
+      - name: Upload KNT continuation state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knt-aider-continuation-${{ github.run_id }}
+          path: |
+            builder/working/*.json
+            builder/working/*.jsonl
+          if-no-files-found: ignore
