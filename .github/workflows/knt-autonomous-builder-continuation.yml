@@ -34,6 +34,13 @@ permissions:
   contents: write
   actions: write
 
+env:
+  CONTINUATION_REF: ${{ inputs.continuation_ref }}
+  REMAINING_MINUTES: ${{ inputs.remaining_minutes }}
+  TOTAL_BUDGET_MINUTES: ${{ inputs.total_budget_minutes }}
+  BUILDER_MAX_UNITS: ${{ inputs.max_units }}
+  LOCAL_AI_MODEL: ${{ inputs.local_model }}
+
 jobs:
   continue:
     runs-on: ubuntu-latest
