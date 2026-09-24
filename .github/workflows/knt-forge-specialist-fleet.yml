@@ -1,6 +1,9 @@
 name: KNT FORGE — Ten Specialist Fleet
 
 on:
+  push:
+    branches:
+      - forge/knt-specialist-fleet
   workflow_dispatch:
     inputs:
       duration:
