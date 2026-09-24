@@ -21,8 +21,9 @@ execFileSync("git",["checkout","-b",branch],{cwd:root,stdio:"inherit"});
 execFileSync("git",["config","user.name","KNT FORGE Specialist"],{cwd:root,stdio:"inherit"});
 execFileSync("git",["config","user.email","41898282+github-actions[bot]@users.noreply.github.com"],{cwd:root,stdio:"inherit"});
 
-const env={...process.env,AUTOBOT_SPECIALIST_OBJECTIVE_ID:objectiveId,AUTOBOT_FEATURE_PASSES:process.env.KNT_SPECIALIST_PASSES||"2",AUTOBOT_FINISH_GRACE_MINUTES:"0"};
-const run=spawnSync(process.execPath,["builder/runner/feature-brain.mjs"],{cwd:root,stdio:"inherit",env,timeout:Math.max(60_000,Number(process.env.KNT_SPECIALIST_MINUTES||15)*60_000)});
+const specialistMinutes=Math.max(1,Number(process.env.KNT_SPECIALIST_MINUTES||15));
+const env={...process.env,AUTOBOT_SPECIALIST_OBJECTIVE_ID:objectiveId,AUTOBOT_FEATURE_PASSES:process.env.KNT_SPECIALIST_PASSES||"2",AUTOBOT_FINISH_GRACE_MINUTES:"0",BUILDER_MAX_MINUTES:String(specialistMinutes)};
+const run=spawnSync(process.execPath,["builder/runner/feature-brain.mjs"],{cwd:root,stdio:"inherit",env,timeout:Math.max(60_000,specialistMinutes*60_000)});
 if(run.error||run.status!==0) throw new Error(`specialist builder failed: ${run.error?.message||run.status}`);
 
 const changed=git(["status","--short","--","src"]).split(/\r?\n/).filter(Boolean).map(x=>x.slice(3).trim()).filter(Boolean);
