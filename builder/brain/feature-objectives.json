@@ -2,13 +2,396 @@
   "version": 2,
   "engine": "aider-repo-map-v4",
   "objectives": [
-    {"id":"KNT-002A","priority":110,"title":"Make fleet and forklift detail a complete engineer workflow","files":["src/App.jsx","src/FleetPage.jsx","src/ForkliftDetailPage.jsx"],"acceptance":["Fleet cards open the correct forklift detail record","Forklift detail exposes customer, site, identity, hours, status and due dates","Forklift detail links useful job and compliance history","Loading, empty and error states are truthful"],"constraints":["Do not redesign unrelated screens","Do not fabricate business data","Do not modify builder infrastructure"]},
-    {"id":"KNT-002B","priority":105,"title":"Make the jobsheet workflow complete and reviewable","dependsOn":["KNT-002A"],"files":["src/NewJobPage.jsx","src/JobDetailPage.jsx","src/lib/data.js"],"acceptance":["Jobs can be created with customer, site, forklift, work details and evidence","A saved job reloads with its evidence and signature","Job status can be reviewed and completed safely","Important save failures are visible to the engineer"],"constraints":["Preserve original evidence","Do not fabricate OCR or AI results","Preserve existing Supabase contracts"]},
-    {"id":"KNT-003","priority":95,"title":"Complete service and LOLER compliance workflow","dependsOn":["KNT-002B"],"files":["src/ServicePage.jsx","src/ForkliftDetailPage.jsx","src/lib/data.js"],"acceptance":["Service and LOLER events can be recorded","Completion updates the appropriate next due date safely","Compliance history is visible from forklift detail","Forklift documents can be attached and retrieved"],"constraints":["Preserve existing compliance dates","Do not invent certificates or documents","Do not modify builder infrastructure"]},
-    {"id":"KNT-004","priority":90,"title":"Complete parts and supplier workflow","dependsOn":["KNT-002B"],"files":["src/PartsSuppliersPage.jsx","src/JobDetailPage.jsx","src/lib/data.js"],"acceptance":["Parts can be created and maintained","Supplier orders and lines can be recorded","Supplier lines can be linked to jobs","Job parts show quantity and cost context"],"constraints":["Preserve supplier paperwork as source evidence","Never invent supplier data","Do not modify builder infrastructure"]},
-    {"id":"KNT-005","priority":85,"title":"Persist quotes and invoices with safe human review","dependsOn":["KNT-002B"],"files":["src/InvoicePage.jsx","src/App.jsx","src/lib/data.js"],"acceptance":["Invoices persist to Supabase","Totals and VAT calculate consistently","Invoice status supports human review","No customer invoice is automatically sent"],"constraints":["Human review remains mandatory","Do not auto-send email","Preserve auditability"]},
-    {"id":"KNT-006","priority":80,"title":"Improve paper and voice job capture without inventing data","dependsOn":["KNT-002B"],"files":["src/NewJobPage.jsx","src/JobDetailPage.jsx","src/lib/data.js"],"acceptance":["Original paper source remains attached","Voice capture produces editable job data where browser support exists","Uncertain extracted fields remain editable","No fabricated OCR result is presented as fact"],"constraints":["Original evidence is the source of truth","Gracefully handle unavailable speech recognition"]},
-    {"id":"KNT-007","priority":75,"title":"Harden authentication identity and mutation recovery","dependsOn":["KNT-002B"],"files":["src/AuthGate.jsx","src/App.jsx","src/lib/data.js"],"acceptance":["Engineer identity is used for mutations where supported","Important mutation failures show useful recovery states","Shared authenticated access remains intact","Build passes"],"constraints":["Do not weaken authentication","Do not remove RLS assumptions"]},
-    {"id":"KNT-008","priority":70,"title":"Build the central compliance calendar and reminder view","dependsOn":["KNT-003"],"files":["src/ServicePage.jsx","src/App.jsx","src/lib/data.js"],"acceptance":["Central compliance dates are visible","Due-soon and overdue states are visible","60/30/14/7 day reminder configuration is represented safely","Mobile PWA workflow remains fast and usable"],"constraints":["Do not fabricate reminders as sent","Preserve existing compliance data"]}
+    {
+      "id": "KNT-002A",
+      "priority": 110,
+      "title": "Make fleet and forklift detail a complete engineer workflow",
+      "files": [
+        "src/App.jsx",
+        "src/FleetPage.jsx",
+        "src/ForkliftDetailPage.jsx"
+      ],
+      "acceptance": [
+        "Fleet cards open the correct forklift detail record",
+        "Forklift detail exposes customer, site, identity, hours, status and due dates",
+        "Forklift detail links useful job and compliance history",
+        "Loading, empty and error states are truthful"
+      ],
+      "constraints": [
+        "Do not redesign unrelated screens",
+        "Do not fabricate business data",
+        "Do not modify builder infrastructure"
+      ]
+    },
+    {
+      "id": "KNT-002B",
+      "priority": 105,
+      "title": "Make the jobsheet workflow complete and reviewable",
+      "dependsOn": [
+        "KNT-002A"
+      ],
+      "files": [
+        "src/NewJobPage.jsx",
+        "src/JobDetailPage.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Jobs can be created with customer, site, forklift, work details and evidence",
+        "A saved job reloads with its evidence and signature",
+        "Job status can be reviewed and completed safely",
+        "Important save failures are visible to the engineer"
+      ],
+      "constraints": [
+        "Preserve original evidence",
+        "Do not fabricate OCR or AI results",
+        "Preserve existing Supabase contracts"
+      ]
+    },
+    {
+      "id": "KNT-003",
+      "priority": 95,
+      "title": "Complete service and LOLER compliance workflow",
+      "dependsOn": [
+        "KNT-002B"
+      ],
+      "files": [
+        "src/ServicePage.jsx",
+        "src/ForkliftDetailPage.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Service and LOLER events can be recorded",
+        "Completion updates the appropriate next due date safely",
+        "Compliance history is visible from forklift detail",
+        "Forklift documents can be attached and retrieved"
+      ],
+      "constraints": [
+        "Preserve existing compliance dates",
+        "Do not invent certificates or documents",
+        "Do not modify builder infrastructure"
+      ]
+    },
+    {
+      "id": "KNT-004",
+      "priority": 90,
+      "title": "Complete parts and supplier workflow",
+      "dependsOn": [
+        "KNT-002B"
+      ],
+      "files": [
+        "src/PartsSuppliersPage.jsx",
+        "src/JobDetailPage.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Parts can be created and maintained",
+        "Supplier orders and lines can be recorded",
+        "Supplier lines can be linked to jobs",
+        "Job parts show quantity and cost context"
+      ],
+      "constraints": [
+        "Preserve supplier paperwork as source evidence",
+        "Never invent supplier data",
+        "Do not modify builder infrastructure"
+      ]
+    },
+    {
+      "id": "KNT-005",
+      "priority": 85,
+      "title": "Persist quotes and invoices with safe human review",
+      "dependsOn": [
+        "KNT-002B"
+      ],
+      "files": [
+        "src/InvoicePage.jsx",
+        "src/App.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Invoices persist to Supabase",
+        "Totals and VAT calculate consistently",
+        "Invoice status supports human review",
+        "No customer invoice is automatically sent"
+      ],
+      "constraints": [
+        "Human review remains mandatory",
+        "Do not auto-send email",
+        "Preserve auditability"
+      ]
+    },
+    {
+      "id": "KNT-006",
+      "priority": 80,
+      "title": "Improve paper and voice job capture without inventing data",
+      "dependsOn": [
+        "KNT-002B"
+      ],
+      "files": [
+        "src/NewJobPage.jsx",
+        "src/JobDetailPage.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Original paper source remains attached",
+        "Voice capture produces editable job data where browser support exists",
+        "Uncertain extracted fields remain editable",
+        "No fabricated OCR result is presented as fact"
+      ],
+      "constraints": [
+        "Original evidence is the source of truth",
+        "Gracefully handle unavailable speech recognition"
+      ]
+    },
+    {
+      "id": "KNT-007",
+      "priority": 75,
+      "title": "Harden authentication identity and mutation recovery",
+      "dependsOn": [
+        "KNT-002B"
+      ],
+      "files": [
+        "src/AuthGate.jsx",
+        "src/App.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Engineer identity is used for mutations where supported",
+        "Important mutation failures show useful recovery states",
+        "Shared authenticated access remains intact",
+        "Build passes"
+      ],
+      "constraints": [
+        "Do not weaken authentication",
+        "Do not remove RLS assumptions"
+      ]
+    },
+    {
+      "id": "KNT-008",
+      "priority": 70,
+      "title": "Build the central compliance calendar and reminder view",
+      "dependsOn": [
+        "KNT-003"
+      ],
+      "files": [
+        "src/ServicePage.jsx",
+        "src/App.jsx",
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Central compliance dates are visible",
+        "Due-soon and overdue states are visible",
+        "60/30/14/7 day reminder configuration is represented safely",
+        "Mobile PWA workflow remains fast and usable"
+      ],
+      "constraints": [
+        "Do not fabricate reminders as sent",
+        "Preserve existing compliance data"
+      ]
+    },
+    {
+      "id": "KNT-009",
+      "priority": 65,
+      "title": "Harden public website stock presentation",
+      "files": [
+        "src/stock.js"
+      ],
+      "acceptance": [
+        "Public stock entries use verified KNT source data only",
+        "Unknown specifications, hours and prices remain explicitly unconfirmed",
+        "Stock records remain structured for future individual listing pages"
+      ],
+      "constraints": [
+        "Do not invent machine data",
+        "Do not add guessed marketplace URLs",
+        "Keep stock data easy to replace with verified records"
+      ]
+    },
+    {
+      "id": "KNT-010",
+      "priority": 60,
+      "title": "Improve KNT public website mobile conversion path",
+      "files": [
+        "src/PublicSite.jsx",
+        "src/public-site.css"
+      ],
+      "acceptance": [
+        "Primary contact actions are obvious on mobile",
+        "Public/private app boundary remains clear",
+        "Website remains accessible and responsive",
+        "KNT branding remains consistent"
+      ],
+      "constraints": [
+        "Do not invent contact details",
+        "Do not alter private app authentication",
+        "Do not modify builder infrastructure"
+      ]
+    },
+    {
+      "id": "KNT-011",
+      "priority": 64,
+      "title": "Harden fleet list loading, filtering and empty states",
+      "files": [
+        "src/FleetPage.jsx"
+      ],
+      "acceptance": [
+        "Fleet list handles loading, empty and error states truthfully",
+        "Filtering does not lose forklift identity or status context",
+        "Mobile layout remains usable"
+      ],
+      "constraints": [
+        "Do not invent fleet records",
+        "Do not modify builder infrastructure"
+      ]
+    },
+    {
+      "id": "KNT-012",
+      "priority": 63,
+      "title": "Harden forklift detail history presentation",
+      "files": [
+        "src/ForkliftDetailPage.jsx"
+      ],
+      "acceptance": [
+        "Identity, site, status and history remain clearly separated",
+        "Missing records are represented honestly",
+        "Compliance and job history remain traceable"
+      ],
+      "constraints": [
+        "Do not invent history or compliance data"
+      ]
+    },
+    {
+      "id": "KNT-013",
+      "priority": 62,
+      "title": "Harden jobsheet validation and save recovery",
+      "files": [
+        "src/NewJobPage.jsx"
+      ],
+      "acceptance": [
+        "Required job information is validated before save",
+        "Save failures remain recoverable",
+        "Evidence requirements are clear"
+      ],
+      "constraints": [
+        "Preserve existing data contracts",
+        "Do not fabricate extracted data"
+      ]
+    },
+    {
+      "id": "KNT-014",
+      "priority": 61,
+      "title": "Harden job detail evidence and completion states",
+      "files": [
+        "src/JobDetailPage.jsx"
+      ],
+      "acceptance": [
+        "Evidence remains attached and visible",
+        "Job completion state is explicit",
+        "Failed mutations provide useful recovery"
+      ],
+      "constraints": [
+        "Preserve original evidence"
+      ]
+    },
+    {
+      "id": "KNT-015",
+      "priority": 60,
+      "title": "Harden shared data helpers and mutation errors",
+      "files": [
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Shared data helpers surface meaningful failures",
+        "Existing callers remain compatible",
+        "No silent destructive mutation path is introduced"
+      ],
+      "constraints": [
+        "Preserve Supabase contracts",
+        "Do not weaken RLS assumptions"
+      ]
+    },
+    {
+      "id": "KNT-016",
+      "priority": 59,
+      "title": "Harden service and compliance interaction states",
+      "files": [
+        "src/ServicePage.jsx"
+      ],
+      "acceptance": [
+        "Service and compliance actions expose loading and failure states",
+        "Due-date changes are explicit",
+        "Mobile engineer workflow remains usable"
+      ],
+      "constraints": [
+        "Never fabricate certificates or dates"
+      ]
+    },
+    {
+      "id": "KNT-017",
+      "priority": 58,
+      "title": "Harden parts and supplier interaction states",
+      "files": [
+        "src/PartsSuppliersPage.jsx"
+      ],
+      "acceptance": [
+        "Part and supplier mutations show clear success/failure states",
+        "Supplier evidence remains traceable",
+        "Empty states are truthful"
+      ],
+      "constraints": [
+        "Never invent supplier data"
+      ]
+    },
+    {
+      "id": "KNT-018",
+      "priority": 57,
+      "title": "Harden commercial review and invoice states",
+      "files": [
+        "src/InvoicePage.jsx"
+      ],
+      "acceptance": [
+        "Totals and VAT remain deterministic",
+        "Review state is obvious",
+        "Sending is never automatic"
+      ],
+      "constraints": [
+        "Human review remains mandatory",
+        "Do not auto-send email"
+      ]
+    },
+    {
+      "id": "KNT-019",
+      "priority": 56,
+      "title": "Harden authentication and app-level recovery UI",
+      "files": [
+        "src/AuthGate.jsx"
+      ],
+      "acceptance": [
+        "Authentication failures are understandable",
+        "Loading and signed-out states are explicit",
+        "Existing authentication assumptions remain intact"
+      ],
+      "constraints": [
+        "Do not weaken authentication"
+      ]
+    },
+    {
+      "id": "KNT-020",
+      "priority": 55,
+      "title": "Improve public website accessibility and responsive structure",
+      "files": [
+        "src/PublicSite.jsx",
+        "src/public-site.css"
+      ],
+      "acceptance": [
+        "Primary public sections remain keyboard accessible",
+        "Responsive layout works across narrow screens",
+        "Contrast and focus treatment remain usable",
+        "Private /app boundary remains clear"
+      ],
+      "constraints": [
+        "Do not invent business data",
+        "Keep KNT branding consistent"
+      ]
+    }
   ]
 }

@@ -6,6 +6,7 @@ on:
       - main
       - feature/knt-v1-foundation
       - forge/knt-public-foundation
+      - forge/knt-specialist-fleet
   pull_request:
     branches:
       - main

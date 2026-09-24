@@ -1,0 +1,163 @@
+name: KNT FORGE — Twenty Specialist Fleet
+
+on:
+  push:
+    branches:
+      - forge/knt-specialist-fleet
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: "Per-specialist execution budget"
+        required: true
+        default: "30m"
+        type: choice
+        options: ["15m","30m","1h","2h","3h","4h","5h","5h30m"]
+      local_model:
+        description: "Local coding model"
+        required: false
+        default: "qwen2.5-coder:7b"
+        type: string
+      specialist_passes:
+        description: "Verified implementation passes per specialist"
+        required: false
+        default: "2"
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: knt-forge-specialist-fleet
+  cancel-in-progress: false
+
+jobs:
+  specialists:
+    name: "${{ matrix.role }}"
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {id: fleet, objective: KNT-002A, role: "🚜 Fleet Specialist"}
+          - {id: jobsheet, objective: KNT-002B, role: "🧾 Jobsheet Specialist"}
+          - {id: service-loler, objective: KNT-003, role: "🔧 Service / LOLER Specialist"}
+          - {id: parts-suppliers, objective: KNT-004, role: "📦 Parts / Supplier Specialist"}
+          - {id: commercial, objective: KNT-005, role: "💷 Commercial Specialist"}
+          - {id: capture, objective: KNT-006, role: "🎙️ Capture Specialist"}
+          - {id: auth-recovery, objective: KNT-007, role: "🔐 Auth / Recovery Specialist"}
+          - {id: compliance-calendar, objective: KNT-008, role: "📅 Compliance Calendar Specialist"}
+          - {id: stock, objective: KNT-009, role: "🏷️ Stock Data Specialist"}
+          - {id: public-web, objective: KNT-010, role: "🌐 Public Website Specialist"}
+          - {id: fleet-ux, objective: KNT-011, role: "🧭 Fleet UX Specialist"}
+          - {id: fleet-history, objective: KNT-012, role: "📚 Forklift History Specialist"}
+          - {id: jobsheet-validation, objective: KNT-013, role: "✅ Jobsheet Validation Specialist"}
+          - {id: job-evidence, objective: KNT-014, role: "📸 Job Evidence Specialist"}
+          - {id: data-reliability, objective: KNT-015, role: "🛡️ Data Reliability Specialist"}
+          - {id: service-ui, objective: KNT-016, role: "🔧 Service UI Specialist"}
+          - {id: parts-ui, objective: KNT-017, role: "📦 Parts UI Specialist"}
+          - {id: commercial-ui, objective: KNT-018, role: "💷 Commercial UI Specialist"}
+          - {id: auth-ui, objective: KNT-019, role: "🔐 Auth UI Specialist"}
+          - {id: website-accessibility, objective: KNT-020, role: "♿ Website Accessibility Specialist"}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - name: Checkout isolated KNT specialist baseline
+        uses: actions/checkout@v5
+        with:
+          ref: forge/knt-specialist-fleet
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install KNT dependencies
+        run: npm install --no-audit --no-fund --no-package-lock
+      - name: Install Aider
+        run: python -m pip install --disable-pip-version-check --no-input aider-chat
+      - name: Validate twenty-specialist fleet contract
+        run: node scripts/autobot/verify-specialist-fleet.mjs
+      - name: Cache local model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: knt-forge-qwen-${{ runner.os }}-${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
+      - name: Start isolated local AI brain
+        env:
+          LOCAL_AI_MODEL: ${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
+        run: bash scripts/autobot/install-local-brain.sh
+      - name: Run specialist lane
+        env:
+          KNT_SPECIALIST_ID: ${{ matrix.id }}
+          AUTOBOT_SPECIALIST_OBJECTIVE_ID: ${{ matrix.objective }}
+          KNT_COORDINATION_ID: knt-fleet-${{ github.run_id }}
+          KNT_SPECIALIST_PASSES: ${{ github.event_name == 'push' && '2' || inputs.specialist_passes }}
+          KNT_SPECIALIST_MINUTES: ${{ github.event_name == 'push' && '15' || inputs.duration == '15m' && '15' || inputs.duration == '30m' && '30' || inputs.duration == '1h' && '60' || inputs.duration == '2h' && '120' || inputs.duration == '3h' && '180' || inputs.duration == '4h' && '240' || inputs.duration == '5h' && '300' || '330' }}
+          LOCAL_AI_MODEL: ${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
+          AUTOBOT_AIDER_MODEL: ${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
+        run: node builder/runner/knt-specialist-lane.mjs
+      - name: Validate specialist handoff
+        run: |
+          set -euo pipefail
+          test -s builder/working/knt-specialist-handoff.json
+          node -e "const x=require('./builder/working/knt-specialist-handoff.json'); if(x.status!=='verified-candidate'||!x.candidateCommit||!x.branch) process.exit(1); console.log(JSON.stringify(x,null,2))"
+      - name: Upload specialist handshake
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knt-specialist-${{ matrix.id }}-${{ github.run_id }}
+          path: builder/working/knt-specialist-handoff.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  fan-in:
+    name: "🧲 KNT Specialist Fan-In"
+    if: always()
+    needs: specialists
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout fleet baseline
+        uses: actions/checkout@v5
+        with:
+          ref: forge/knt-specialist-fleet
+          fetch-depth: 1
+      - name: Download all specialist handshakes
+        uses: actions/download-artifact@v5
+        with:
+          pattern: knt-specialist-* 
+          path: builder/working/fan-in
+          merge-multiple: false
+      - name: Build canonical fan-in ledger
+        env:
+          KNT_COORDINATION_ID: knt-fleet-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const root='builder/working/fan-in', files=[];
+          fs.mkdirSync(root,{recursive:true});
+          function walk(dir){
+            for(const e of fs.readdirSync(dir,{withFileTypes:true})){
+              const p=path.join(dir,e.name);
+              if(e.isDirectory()) walk(p);
+              else if(e.name==='knt-specialist-handoff.json') files.push(p);
+            }
+          }
+          walk(root);
+          const workers=files.map(f=>JSON.parse(fs.readFileSync(f,'utf8')));
+          const expected=['fleet','jobsheet','service-loler','parts-suppliers','commercial','capture','auth-recovery','compliance-calendar','stock','public-web','fleet-ux','fleet-history','jobsheet-validation','job-evidence','data-reliability','service-ui','parts-ui','commercial-ui','auth-ui','website-accessibility'];
+          for(const id of expected) if(!workers.some(x=>x.specialistId===id)) workers.push({schemaVersion:'knt-specialist-handoff-v1',coordinationId:process.env.KNT_COORDINATION_ID,specialistId:id,status:'no-handoff',integrationEligible:false});
+          workers.sort((a,b)=>String(a.specialistId).localeCompare(String(b.specialistId)));
+          const ledger={schemaVersion:'knt-fan-in-ledger-v1',coordinationId:process.env.KNT_COORDINATION_ID,workers,summary:workers.reduce((a,x)=>{const k=x.status||'unknown';a[k]=(a[k]||0)+1;return a;},{}),integrationPolicy:'human-controlled',generatedAt:new Date().toISOString()};
+          fs.mkdirSync('builder/working/fan-in-ledger',{recursive:true});
+          fs.writeFileSync('builder/working/fan-in-ledger/knt-fan-in-ledger.json',JSON.stringify(ledger,null,2)+'\n');
+          console.log(JSON.stringify(ledger,null,2));
+          NODE
+      - name: Upload canonical fan-in ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: knt-specialist-fan-in-${{ github.run_id }}
+          path: builder/working/fan-in-ledger/knt-fan-in-ledger.json
+          retention-days: 30

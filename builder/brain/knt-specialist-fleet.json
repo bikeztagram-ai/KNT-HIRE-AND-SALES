@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "knt-specialist-fleet-v2",
+  "product": "KNT-HIRE-AND-SALES",
+  "coordination": "independent-specialist-candidate-fan-in",
+  "integration": "human-controlled",
+  "specialists": [
+    {
+      "id": "fleet",
+      "objectiveId": "KNT-002A",
+      "role": "Fleet Specialist"
+    },
+    {
+      "id": "jobsheet",
+      "objectiveId": "KNT-002B",
+      "role": "Jobsheet Specialist"
+    },
+    {
+      "id": "service-loler",
+      "objectiveId": "KNT-003",
+      "role": "Service / LOLER Specialist"
+    },
+    {
+      "id": "parts-suppliers",
+      "objectiveId": "KNT-004",
+      "role": "Parts / Supplier Specialist"
+    },
+    {
+      "id": "commercial",
+      "objectiveId": "KNT-005",
+      "role": "Commercial Specialist"
+    },
+    {
+      "id": "capture",
+      "objectiveId": "KNT-006",
+      "role": "Paper / Voice Capture Specialist"
+    },
+    {
+      "id": "auth-recovery",
+      "objectiveId": "KNT-007",
+      "role": "Auth / Recovery Specialist"
+    },
+    {
+      "id": "compliance-calendar",
+      "objectiveId": "KNT-008",
+      "role": "Compliance Calendar Specialist"
+    },
+    {
+      "id": "stock",
+      "objectiveId": "KNT-009",
+      "role": "Stock Data Specialist"
+    },
+    {
+      "id": "public-web",
+      "objectiveId": "KNT-010",
+      "role": "Public Website Specialist"
+    },
+    {
+      "id": "fleet-ux",
+      "objectiveId": "KNT-011",
+      "role": "Fleet UX Specialist"
+    },
+    {
+      "id": "fleet-history",
+      "objectiveId": "KNT-012",
+      "role": "Forklift History Specialist"
+    },
+    {
+      "id": "jobsheet-validation",
+      "objectiveId": "KNT-013",
+      "role": "Jobsheet Validation Specialist"
+    },
+    {
+      "id": "job-evidence",
+      "objectiveId": "KNT-014",
+      "role": "Job Evidence Specialist"
+    },
+    {
+      "id": "data-reliability",
+      "objectiveId": "KNT-015",
+      "role": "Data Reliability Specialist"
+    },
+    {
+      "id": "service-ui",
+      "objectiveId": "KNT-016",
+      "role": "Service UI Specialist"
+    },
+    {
+      "id": "parts-ui",
+      "objectiveId": "KNT-017",
+      "role": "Parts UI Specialist"
+    },
+    {
+      "id": "commercial-ui",
+      "objectiveId": "KNT-018",
+      "role": "Commercial UI Specialist"
+    },
+    {
+      "id": "auth-ui",
+      "objectiveId": "KNT-019",
+      "role": "Auth UI Specialist"
+    },
+    {
+      "id": "website-accessibility",
+      "objectiveId": "KNT-020",
+      "role": "Website Accessibility Specialist"
+    }
+  ],
+  "handshake": {
+    "required": [
+      "coordinationId",
+      "specialistId",
+      "baseCommit",
+      "candidateCommit",
+      "branch",
+      "objectiveId",
+      "ownedFiles",
+      "verification",
+      "status"
+    ],
+    "verifiedCarryForward": true,
+    "rejectCandidateOnVerificationFailure": true
+  },
+  "execution": {
+    "maxParallel": 20,
+    "isolated": true,
+    "mergePolicy": "human-controlled",
+    "note": "Twenty independent candidates are evidence-producing outputs; overlapping product files must be integrated deliberately."
+  }
+}
