@@ -19,7 +19,7 @@ export default function AuthGate({ children }) {
   }, []);
 
   if (!supabase) return children;
-  if (loading) return <div className="auth-shell"><div className="auth-card"><strong>Loading KNT…</strong><p className="muted">Checking your secure session.</p></div></div>;
+  if (loading) return <div className="auth-shell"><div className="auth-card"><img className="auth-logo" src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/><strong>Loading KNT…</strong><p className="muted">Checking your secure session.</p></div></div>;
   if (session) return children;
 
   async function signIn(event) {
@@ -30,7 +30,7 @@ export default function AuthGate({ children }) {
   }
 
   return <div className="auth-shell"><form className="auth-card" onSubmit={signIn}>
-    <div className="brand-mark auth-mark">KNT</div>
+    <img className="auth-logo" src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/>
     <h1>KNT Hire & Sales</h1>
     <p className="muted">Sign in to the shared engineer workspace.</p>
     <label>Email<input type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></label>
