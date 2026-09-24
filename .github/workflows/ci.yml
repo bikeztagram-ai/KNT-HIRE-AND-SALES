@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/knt-v1-foundation
+      - forge/knt-public-foundation
   pull_request:
     branches:
       - main
