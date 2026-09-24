@@ -36,7 +36,7 @@ export default function AuthGate({ children }) {
     <h1>KNT Hire & Sales</h1>
     <p className="muted">Sign in to the shared engineer workspace.</p>
     <label>Email<input type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></label>
-    <label>Password<input type="password" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></label>
+    <label>Password<input type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>
     {error && <div className="error-box" role="alert">{error}</div>}
     <button className="primary wide" type="submit">Sign in</button>
   </form></div>;
