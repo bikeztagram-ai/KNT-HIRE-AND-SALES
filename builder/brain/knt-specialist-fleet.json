@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "knt-specialist-fleet-v1",
+  "product": "KNT-HIRE-AND-SALES",
+  "coordination": "independent-specialist-candidate-fan-in",
+  "integration": "human-controlled",
+  "specialists": [
+    {
+      "id": "fleet",
+      "objectiveId": "KNT-002A",
+      "role": "Fleet Specialist"
+    },
+    {
+      "id": "jobsheet",
+      "objectiveId": "KNT-002B",
+      "role": "Jobsheet Specialist"
+    },
+    {
+      "id": "service-loler",
+      "objectiveId": "KNT-003",
+      "role": "Service / LOLER Specialist"
+    },
+    {
+      "id": "parts-suppliers",
+      "objectiveId": "KNT-004",
+      "role": "Parts / Supplier Specialist"
+    },
+    {
+      "id": "commercial",
+      "objectiveId": "KNT-005",
+      "role": "Commercial Specialist"
+    },
+    {
+      "id": "capture",
+      "objectiveId": "KNT-006",
+      "role": "Paper / Voice Capture Specialist"
+    },
+    {
+      "id": "auth-recovery",
+      "objectiveId": "KNT-007",
+      "role": "Auth / Recovery Specialist"
+    },
+    {
+      "id": "compliance-calendar",
+      "objectiveId": "KNT-008",
+      "role": "Compliance Calendar Specialist"
+    },
+    {
+      "id": "stock",
+      "objectiveId": "KNT-009",
+      "role": "Stock Data Specialist"
+    },
+    {
+      "id": "public-web",
+      "objectiveId": "KNT-010",
+      "role": "Public Website Specialist"
+    }
+  ],
+  "handshake": {
+    "required": [
+      "coordinationId",
+      "specialistId",
+      "baseCommit",
+      "candidateCommit",
+      "branch",
+      "objectiveId",
+      "ownedFiles",
+      "verification",
+      "status"
+    ],
+    "verifiedCarryForward": true,
+    "rejectCandidateOnVerificationFailure": true
+  }
+}
