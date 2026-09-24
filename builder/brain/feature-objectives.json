@@ -225,6 +225,173 @@
         "Do not alter private app authentication",
         "Do not modify builder infrastructure"
       ]
+    },
+    {
+      "id": "KNT-011",
+      "priority": 64,
+      "title": "Harden fleet list loading, filtering and empty states",
+      "files": [
+        "src/FleetPage.jsx"
+      ],
+      "acceptance": [
+        "Fleet list handles loading, empty and error states truthfully",
+        "Filtering does not lose forklift identity or status context",
+        "Mobile layout remains usable"
+      ],
+      "constraints": [
+        "Do not invent fleet records",
+        "Do not modify builder infrastructure"
+      ]
+    },
+    {
+      "id": "KNT-012",
+      "priority": 63,
+      "title": "Harden forklift detail history presentation",
+      "files": [
+        "src/ForkliftDetailPage.jsx"
+      ],
+      "acceptance": [
+        "Identity, site, status and history remain clearly separated",
+        "Missing records are represented honestly",
+        "Compliance and job history remain traceable"
+      ],
+      "constraints": [
+        "Do not invent history or compliance data"
+      ]
+    },
+    {
+      "id": "KNT-013",
+      "priority": 62,
+      "title": "Harden jobsheet validation and save recovery",
+      "files": [
+        "src/NewJobPage.jsx"
+      ],
+      "acceptance": [
+        "Required job information is validated before save",
+        "Save failures remain recoverable",
+        "Evidence requirements are clear"
+      ],
+      "constraints": [
+        "Preserve existing data contracts",
+        "Do not fabricate extracted data"
+      ]
+    },
+    {
+      "id": "KNT-014",
+      "priority": 61,
+      "title": "Harden job detail evidence and completion states",
+      "files": [
+        "src/JobDetailPage.jsx"
+      ],
+      "acceptance": [
+        "Evidence remains attached and visible",
+        "Job completion state is explicit",
+        "Failed mutations provide useful recovery"
+      ],
+      "constraints": [
+        "Preserve original evidence"
+      ]
+    },
+    {
+      "id": "KNT-015",
+      "priority": 60,
+      "title": "Harden shared data helpers and mutation errors",
+      "files": [
+        "src/lib/data.js"
+      ],
+      "acceptance": [
+        "Shared data helpers surface meaningful failures",
+        "Existing callers remain compatible",
+        "No silent destructive mutation path is introduced"
+      ],
+      "constraints": [
+        "Preserve Supabase contracts",
+        "Do not weaken RLS assumptions"
+      ]
+    },
+    {
+      "id": "KNT-016",
+      "priority": 59,
+      "title": "Harden service and compliance interaction states",
+      "files": [
+        "src/ServicePage.jsx"
+      ],
+      "acceptance": [
+        "Service and compliance actions expose loading and failure states",
+        "Due-date changes are explicit",
+        "Mobile engineer workflow remains usable"
+      ],
+      "constraints": [
+        "Never fabricate certificates or dates"
+      ]
+    },
+    {
+      "id": "KNT-017",
+      "priority": 58,
+      "title": "Harden parts and supplier interaction states",
+      "files": [
+        "src/PartsSuppliersPage.jsx"
+      ],
+      "acceptance": [
+        "Part and supplier mutations show clear success/failure states",
+        "Supplier evidence remains traceable",
+        "Empty states are truthful"
+      ],
+      "constraints": [
+        "Never invent supplier data"
+      ]
+    },
+    {
+      "id": "KNT-018",
+      "priority": 57,
+      "title": "Harden commercial review and invoice states",
+      "files": [
+        "src/InvoicePage.jsx"
+      ],
+      "acceptance": [
+        "Totals and VAT remain deterministic",
+        "Review state is obvious",
+        "Sending is never automatic"
+      ],
+      "constraints": [
+        "Human review remains mandatory",
+        "Do not auto-send email"
+      ]
+    },
+    {
+      "id": "KNT-019",
+      "priority": 56,
+      "title": "Harden authentication and app-level recovery UI",
+      "files": [
+        "src/AuthGate.jsx"
+      ],
+      "acceptance": [
+        "Authentication failures are understandable",
+        "Loading and signed-out states are explicit",
+        "Existing authentication assumptions remain intact"
+      ],
+      "constraints": [
+        "Do not weaken authentication"
+      ]
+    },
+    {
+      "id": "KNT-020",
+      "priority": 55,
+      "title": "Improve public website accessibility and responsive structure",
+      "files": [
+        "src/PublicSite.jsx",
+        "src/public-site.css"
+      ],
+      "acceptance": [
+        "Primary public sections remain keyboard accessible",
+        "Responsive layout works across narrow screens",
+        "Contrast and focus treatment remain usable",
+        "Private /app boundary remains clear"
+      ],
+      "constraints": [
+        "Do not invent business data",
+        "Keep KNT branding consistent"
+      ]
     }
   ]
 }
