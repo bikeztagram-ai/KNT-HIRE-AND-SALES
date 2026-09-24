@@ -1,4 +1,4 @@
-name: KNT FORGE — Ten Specialist Fleet
+name: KNT FORGE — Twenty Specialist Fleet
 
 on:
   push:
@@ -75,26 +75,26 @@ jobs:
         run: npm install --no-audit --no-fund --no-package-lock
       - name: Install Aider
         run: python -m pip install --disable-pip-version-check --no-input aider-chat
-      - name: Validate ten-specialist fleet contract
+      - name: Validate twenty-specialist fleet contract
         run: node scripts/autobot/verify-specialist-fleet.mjs
       - name: Cache local model
         uses: actions/cache@v4
         with:
           path: ~/.ollama/models
-          key: knt-forge-qwen-${{ runner.os }}-${{ inputs.local_model }}
+          key: knt-forge-qwen-${{ runner.os }}-${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
       - name: Start isolated local AI brain
         env:
-          LOCAL_AI_MODEL: ${{ inputs.local_model }}
+          LOCAL_AI_MODEL: ${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
         run: bash scripts/autobot/install-local-brain.sh
       - name: Run specialist lane
         env:
           KNT_SPECIALIST_ID: ${{ matrix.id }}
           AUTOBOT_SPECIALIST_OBJECTIVE_ID: ${{ matrix.objective }}
           KNT_COORDINATION_ID: knt-fleet-${{ github.run_id }}
-          KNT_SPECIALIST_PASSES: ${{ inputs.specialist_passes }}
-          KNT_SPECIALIST_MINUTES: ${{ inputs.duration == '15m' && '15' || inputs.duration == '30m' && '30' || inputs.duration == '1h' && '60' || inputs.duration == '2h' && '120' || inputs.duration == '3h' && '180' || inputs.duration == '4h' && '240' || inputs.duration == '5h' && '300' || '330' }}
-          LOCAL_AI_MODEL: ${{ inputs.local_model }}
-          AUTOBOT_AIDER_MODEL: ${{ inputs.local_model }}
+          KNT_SPECIALIST_PASSES: ${{ github.event_name == 'push' && '2' || inputs.specialist_passes }}
+          KNT_SPECIALIST_MINUTES: ${{ github.event_name == 'push' && '15' || inputs.duration == '15m' && '15' || inputs.duration == '30m' && '30' || inputs.duration == '1h' && '60' || inputs.duration == '2h' && '120' || inputs.duration == '3h' && '180' || inputs.duration == '4h' && '240' || inputs.duration == '5h' && '300' || '330' }}
+          LOCAL_AI_MODEL: ${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
+          AUTOBOT_AIDER_MODEL: ${{ github.event_name == 'push' && 'qwen2.5-coder:7b' || inputs.local_model }}
         run: node builder/runner/knt-specialist-lane.mjs
       - name: Validate specialist handoff
         run: |
@@ -137,6 +137,7 @@ jobs:
           import fs from 'node:fs';
           import path from 'node:path';
           const root='builder/working/fan-in', files=[];
+          fs.mkdirSync(root,{recursive:true});
           function walk(dir){
             for(const e of fs.readdirSync(dir,{withFileTypes:true})){
               const p=path.join(dir,e.name);
