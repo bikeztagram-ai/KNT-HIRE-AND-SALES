@@ -1,7 +1,7 @@
 import fs from "node:fs";
 const fleet=JSON.parse(fs.readFileSync("builder/brain/knt-specialist-fleet.json","utf8"));
 const objectives=JSON.parse(fs.readFileSync("builder/brain/feature-objectives.json","utf8")).objectives;
-if(fleet.specialists?.length!==10) throw new Error("KNT specialist fleet must contain exactly 10 specialists");
+if(fleet.specialists?.length!==20) throw new Error("KNT specialist fleet must contain exactly 20 specialists");
 const ids=new Set(fleet.specialists.map(x=>x.id));
 if(ids.size!==10) throw new Error("Specialist IDs must be unique");
 for(const s of fleet.specialists){
