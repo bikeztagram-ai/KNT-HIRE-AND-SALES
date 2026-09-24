@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 
+const logoStyle = { width: '220px', maxWidth: '100%', display: 'block', margin: '0 auto 18px' };
+
 export default function AuthGate({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(Boolean(supabase));
@@ -19,7 +21,7 @@ export default function AuthGate({ children }) {
   }, []);
 
   if (!supabase) return children;
-  if (loading) return <div className="auth-shell"><div className="auth-card"><img className="auth-logo" src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/><strong>Loading KNT…</strong><p className="muted">Checking your secure session.</p></div></div>;
+  if (loading) return <div className="auth-shell"><div className="auth-card"><img style={logoStyle} src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/><strong>Loading KNT…</strong><p className="muted">Checking your secure session.</p></div></div>;
   if (session) return children;
 
   async function signIn(event) {
@@ -30,11 +32,11 @@ export default function AuthGate({ children }) {
   }
 
   return <div className="auth-shell"><form className="auth-card" onSubmit={signIn}>
-    <img className="auth-logo" src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/>
+    <img style={logoStyle} src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/>
     <h1>KNT Hire & Sales</h1>
     <p className="muted">Sign in to the shared engineer workspace.</p>
     <label>Email<input type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></label>
-    <label>Password<input type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>
+    <label>Password<input type="password" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></label>
     {error && <div className="error-box" role="alert">{error}</div>}
     <button className="primary wide" type="submit">Sign in</button>
   </form></div>;
