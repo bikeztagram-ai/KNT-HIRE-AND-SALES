@@ -33,39 +33,29 @@ jobs:
     name: "${{ matrix.role }}"
     strategy:
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 20
       matrix:
         include:
-          - id: fleet
-            objective: KNT-002A
-            role: "🚜 Fleet Specialist"
-          - id: jobsheet
-            objective: KNT-002B
-            role: "🧾 Jobsheet Specialist"
-          - id: service-loler
-            objective: KNT-003
-            role: "🔧 Service / LOLER Specialist"
-          - id: parts-suppliers
-            objective: KNT-004
-            role: "📦 Parts / Supplier Specialist"
-          - id: commercial
-            objective: KNT-005
-            role: "💷 Commercial Specialist"
-          - id: capture
-            objective: KNT-006
-            role: "🎙️ Capture Specialist"
-          - id: auth-recovery
-            objective: KNT-007
-            role: "🔐 Auth / Recovery Specialist"
-          - id: compliance-calendar
-            objective: KNT-008
-            role: "📅 Compliance Calendar Specialist"
-          - id: stock
-            objective: KNT-009
-            role: "🏷️ Stock Data Specialist"
-          - id: public-web
-            objective: KNT-010
-            role: "🌐 Public Website Specialist"
+          - {id: fleet, objective: KNT-002A, role: "🚜 Fleet Specialist"}
+          - {id: jobsheet, objective: KNT-002B, role: "🧾 Jobsheet Specialist"}
+          - {id: service-loler, objective: KNT-003, role: "🔧 Service / LOLER Specialist"}
+          - {id: parts-suppliers, objective: KNT-004, role: "📦 Parts / Supplier Specialist"}
+          - {id: commercial, objective: KNT-005, role: "💷 Commercial Specialist"}
+          - {id: capture, objective: KNT-006, role: "🎙️ Capture Specialist"}
+          - {id: auth-recovery, objective: KNT-007, role: "🔐 Auth / Recovery Specialist"}
+          - {id: compliance-calendar, objective: KNT-008, role: "📅 Compliance Calendar Specialist"}
+          - {id: stock, objective: KNT-009, role: "🏷️ Stock Data Specialist"}
+          - {id: public-web, objective: KNT-010, role: "🌐 Public Website Specialist"}
+          - {id: fleet-ux, objective: KNT-011, role: "🧭 Fleet UX Specialist"}
+          - {id: fleet-history, objective: KNT-012, role: "📚 Forklift History Specialist"}
+          - {id: jobsheet-validation, objective: KNT-013, role: "✅ Jobsheet Validation Specialist"}
+          - {id: job-evidence, objective: KNT-014, role: "📸 Job Evidence Specialist"}
+          - {id: data-reliability, objective: KNT-015, role: "🛡️ Data Reliability Specialist"}
+          - {id: service-ui, objective: KNT-016, role: "🔧 Service UI Specialist"}
+          - {id: parts-ui, objective: KNT-017, role: "📦 Parts UI Specialist"}
+          - {id: commercial-ui, objective: KNT-018, role: "💷 Commercial UI Specialist"}
+          - {id: auth-ui, objective: KNT-019, role: "🔐 Auth UI Specialist"}
+          - {id: website-accessibility, objective: KNT-020, role: "♿ Website Accessibility Specialist"}
     runs-on: ubuntu-24.04
     timeout-minutes: 350
     steps:
@@ -153,7 +143,7 @@ jobs:
           }
           walk(root);
           const workers=files.map(f=>JSON.parse(fs.readFileSync(f,'utf8')));
-          const expected=['fleet','jobsheet','service-loler','parts-suppliers','commercial','capture','auth-recovery','compliance-calendar','stock','public-web'];
+          const expected=['fleet','jobsheet','service-loler','parts-suppliers','commercial','capture','auth-recovery','compliance-calendar','stock','public-web','fleet-ux','fleet-history','jobsheet-validation','job-evidence','data-reliability','service-ui','parts-ui','commercial-ui','auth-ui','website-accessibility'];
           for(const id of expected) if(!workers.some(x=>x.specialistId===id)) workers.push({schemaVersion:'knt-specialist-handoff-v1',coordinationId:process.env.KNT_COORDINATION_ID,specialistId:id,status:'no-handoff',integrationEligible:false});
           workers.sort((a,b)=>String(a.specialistId).localeCompare(String(b.specialistId)));
           const ledger={schemaVersion:'knt-fan-in-ledger-v1',coordinationId:process.env.KNT_COORDINATION_ID,workers,summary:workers.reduce((a,x)=>{const k=x.status||'unknown';a[k]=(a[k]||0)+1;return a;},{}),integrationPolicy:'human-controlled',generatedAt:new Date().toISOString()};
