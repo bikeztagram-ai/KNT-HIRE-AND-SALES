@@ -35,7 +35,7 @@ env:
   AUTOBOT_FEATURE_MAX_EDITS: 2
   AUTOBOT_MAX_FEATURE_CYCLES: 24
   LOCAL_AI_FEATURE_TIMEOUT_SECONDS: 240
-  BUILDER_BASE_BRANCH: feature/knt-v1-foundation
+  BUILDER_BASE_BRANCH: forge/knt-public-foundation
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout KNT product baseline
         uses: actions/checkout@v5
         with:
-          ref: feature/knt-v1-foundation
+          ref: forge/knt-public-foundation
           fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v5
