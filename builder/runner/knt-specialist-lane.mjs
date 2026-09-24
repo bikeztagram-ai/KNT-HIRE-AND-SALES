@@ -26,7 +26,7 @@ const env={...process.env,AUTOBOT_SPECIALIST_OBJECTIVE_ID:objectiveId,AUTOBOT_FE
 const run=spawnSync(process.execPath,["builder/runner/feature-brain.mjs"],{cwd:root,stdio:"inherit",env,timeout:Math.max(60_000,specialistMinutes*60_000)});
 if(run.error||run.status!==0) throw new Error(`specialist builder failed: ${run.error?.message||run.status}`);
 
-const changed=git(["status","--short","--","src"]).split(/\r?\n/).filter(Boolean).map(x=>x.slice(3).trim()).filter(Boolean);
+const changed=git(["status","--short","--","src"]).split(/\r?\n/).filter(Boolean).map(x=>x.slice(2).trim()).filter(Boolean);
 if(!changed.length) throw new Error("specialist produced no product change");
 execFileSync("npm",["run","build"],{cwd:root,stdio:"inherit",timeout:120_000});
 execFileSync("git",["diff","--check","HEAD"],{cwd:root,stdio:"inherit"});
@@ -45,5 +45,5 @@ const handoff={
  integrationEligible:true,createdAt:new Date().toISOString()
 };
 fs.mkdirSync(path.join(root,"builder/working"),{recursive:true});
-fs.writeFileSync(path.join(root,"builder/working/knt-specialist-handoff.json"),JSON.stringify(handoff,null,2)+"\n");
+fs.writeFileSync(path.join(root,"builder/working/knt-specialist-handoff.json",JSON.stringify(handoff,null,2)+"\n");
 console.log(JSON.stringify(handoff,null,2));
