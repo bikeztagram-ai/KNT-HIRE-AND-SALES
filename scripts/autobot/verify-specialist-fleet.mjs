@@ -3,7 +3,7 @@ const fleet=JSON.parse(fs.readFileSync("builder/brain/knt-specialist-fleet.json"
 const objectives=JSON.parse(fs.readFileSync("builder/brain/feature-objectives.json","utf8")).objectives;
 if(fleet.specialists?.length!==20) throw new Error("KNT specialist fleet must contain exactly 20 specialists");
 const ids=new Set(fleet.specialists.map(x=>x.id));
-if(ids.size!==10) throw new Error("Specialist IDs must be unique");
+if(ids.size!==20) throw new Error("Specialist IDs must be unique");
 for(const s of fleet.specialists){
   if(!s.objectiveId||!objectives.some(o=>o.id===s.objectiveId)) throw new Error(`Missing objective for ${s.id}`);
 }
