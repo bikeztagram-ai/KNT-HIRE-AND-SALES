@@ -1,4 +1,5 @@
 import React from "react";
+import StockVisual from "./StockVisual";
 
 const stock = [
   { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Full specification and price to be confirmed by KNT." },
@@ -21,6 +22,7 @@ export default function PublicSite(){
 
     <main id="main-content">
       <section className="hero" id="top">
+        <StockVisual hero item={stock[0]} />
         <div className="hero-overlay"/>
         <div className="hero-copy">
           <p className="eyebrow">DRIFFIELD · EAST YORKSHIRE</p>
@@ -36,7 +38,7 @@ export default function PublicSite(){
       <section className="stock section" id="stock">
         <div className="section-head"><div><p className="eyebrow">LATEST STOCK</p><h2>Forklifts <em>for sale</em></h2></div><a href="#contact">View all stock →</a></div>
         <div className="stock-grid">{stock.map(item=><article className="stock-card" key={item.id}>
-          <div className="stock-image"><img src={item.image} alt={item.name}/><span>{item.tag}</span></div>
+          <StockVisual item={item} />
           <div className="stock-body"><h3>{item.name}</h3><p>{item.note}</p><a className="card-cta" href="#contact">View details →</a></div>
         </article>)}</div>
       </section>
