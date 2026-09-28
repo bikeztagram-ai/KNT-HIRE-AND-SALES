@@ -3,12 +3,12 @@ import path from 'node:path';
 const root=process.cwd();
 const src=path.join(root,'src');
 const files=[];
-function walk(dir){for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const s=fs.statSync(p);if(s.isDirectory())walk(p);else if(/\\.(js|jsx)$/.test(name))files.push(p)}}
+function walk(dir){for(const name of fs.readdirSync(dir)){const p=path.join(dir,name);const s=fs.statSync(p);if(s.isDirectory())walk(p);else if(/\.(js|jsx)$/.test(name))files.push(p)}}
 walk(src);
 const failures=[];
 for(const file of files){
-  const text=fs.readFileSync(file,'utf8');
-  for(const match of text.matchAll(/from['\"](\\.[^'\"]+)['\"]/g)){
+  const source=fs.readFileSync(file,'utf8');
+  for(const match of source.matchAll(/from['\"](\.[^'\"]+)['\"]/g)){
     const spec=match[1];
     const target=path.resolve(path.dirname(file),spec);
     const candidates=[target,target+'.js',target+'.jsx',path.join(target,'index.js'),path.join(target,'index.jsx')];
