@@ -6,20 +6,20 @@ import {execFileSync} from 'node:child_process';
 const read=p=>fs.readFileSync(p,'utf8');
 const runner=read('builder/runner/aider-feature-brain.mjs');
 const controller=read('builder/runner/long-run-executor.mjs');
-const workflow=read('.github/workflows/knt-autonomous-builder.yml');
+const workflow=read('.github/workflows/knt-autonomous-builder-continuation.yml');
 const objectives=JSON.parse(read('builder/brain/feature-objectives.json')).objectives||[];
 const checks=[
  ['Aider engine',runner.includes('aider-repo-map-v4')&&runner.includes('aider')],
- ['KNT objective scopes',runner.includes('feature-objectives.json')&&runner.includes('scopedFiles(obj)')],
+ ['KNT objective scopes',runner.includes('feature-objectives.json')&&runner.includes('scopedFiles(o)')],
  ['dependency-aware selection',runner.includes('o.dependsOn')],
  ['bounded passes',runner.includes('AUTOBOT_FEATURE_PASSES')],
  ['hard deadline',runner.includes('AUTOBOT_FEATURE_DEADLINE_EPOCH_MS')&&runner.includes('remainingMs()')],
  ['repository-map subtree',runner.includes('--subtree-only')&&runner.includes('--map-tokens=768')],
  ['no automatic commits',runner.includes('--no-auto-commits')&&runner.includes('--no-dirty-commits')],
- ['scope rollback',runner.includes('restorePassSnapshot')&&runner.includes('unauthorized KNT modified paths')],
- ['diff/build gates',runner.includes("['diff','--check']")&&runner.includes("['run','build']")],
+ ['scope rollback',runner.includes('snapshot(files)')&&runner.includes('restore(o,snap)')&&runner.includes('Aider modified files outside KNT objective scope')],
+ ['diff/build gates',runner.includes("['diff','--check']")&&runner.includes("run('npm',['run','build']")],
  ['durable state recovery',runner.includes('loadAiderState')&&runner.includes('saveAiderState')],
- ['KNT business safety',runner.includes('original evidence')&&runner.includes('human-invoice-review')],
+ ['KNT business safety',runner.includes('original evidence')&&runner.includes('human invoice review')],
  ['controller entrypoint',controller.includes('builder/runner/feature-brain.mjs')],
  ['workflow installs Aider',workflow.includes('aider-chat')],
  ['workflow selects engine',workflow.includes('aider-repo-map-v4')],
