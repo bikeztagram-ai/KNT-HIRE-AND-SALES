@@ -20,7 +20,7 @@ export default function PartsSuppliersPage(){
    setOpen(false);setOrder({supplier_id:'',order_number:'',job_id:'',part_id:'',description:'',quantity:'1',unit_cost:'',status:'ordered'});await load()
   }catch(e){setError(e.message)}finally{setSaving(false)}
  };
- const receiveOrder=async(id)=>{try{await updateSupplierOrder(id,{status:'received'});await load()}catch(e){setError(e.message)}};
+ const receiveOrder=async(id)=>{try{const lines=await listSupplierOrderLines(id);await updateSupplierOrder(id,{status:'received'});for(const line of lines){if(line.job_id){const jp=await listJobParts(line.job_id);const matches=jp.filter(x=>(line.part_id&&x.part_id===line.part_id)||(!line.part_id&&x.description?.trim()===line.description?.trim()));for(const part of matches)await updateJobPart(part.id,{status:'received'})}}await load()}catch(e){setError(e.message)}};
  if(!supabase)return <div className="empty-state"><Package size={30}/><strong>Cloud setup required</strong></div>;
  return <><div className="page-title"><div><h1>Parts & suppliers</h1><p className="muted">Manage parts, suppliers and orders for jobs waiting on parts.</p></div>{tab==='suppliers'?<button className="primary"onClick={()=>setOpen(true)}><Plus size={18}/> Supplier</button>:tab==='orders'?<button className="primary"onClick={()=>setOpen(true)}><Plus size={18}/> Order</button>:null}</div>
  {error&&<div className="error-box">{error}</div>}
