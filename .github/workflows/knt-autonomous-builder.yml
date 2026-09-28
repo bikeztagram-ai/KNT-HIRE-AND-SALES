@@ -1,5 +1,4 @@
 name: KNT Autonomous Builder — PROVEN Qwen
-
 on:
   workflow_dispatch:
     inputs:
@@ -11,9 +10,9 @@ on:
       duration:
         description: 'Qwen AutoBot work time budget'
         required: false
-        default: '30m'
+        default: '15m'
         type: choice
-        options: ['15m','30m','1h','2h','3h','4h','5h','6h']
+        options: ['15m','30m','1h','2h','3h','4h','5h','5h30m']
       local_model:
         description: 'Local coding model'
         required: false
@@ -30,22 +29,22 @@ env:
   LOCAL_AI_MODEL: ${{ inputs.local_model }}
   AUTOBOT_FEATURE_ENGINE: qwen-structured-search-replace-v3
   AUTOBOT_WORKER_CONFIG_VERSION: knt-qwen-v4
-  AUTOBOT_FINISH_GRACE_MINUTES: 5
+  AUTOBOT_FINISH_GRACE_MINUTES: 15
   AUTOBOT_FEATURE_SLICE_MINUTES: 8
   AUTOBOT_FEATURE_MAX_ATTEMPTS: 2
   AUTOBOT_FEATURE_MAX_EDITS: 2
   AUTOBOT_MAX_FEATURE_CYCLES: 24
   LOCAL_AI_FEATURE_TIMEOUT_SECONDS: 240
-  BUILDER_BASE_BRANCH: feature/knt-v1-foundation
+  BUILDER_BASE_BRANCH: forge/knt-public-foundation
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 370
+    timeout-minutes: 350
     steps:
       - name: Checkout KNT product baseline
         uses: actions/checkout@v5
         with:
-          ref: feature/knt-v1-foundation
+          ref: forge/knt-public-foundation
           fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v5
@@ -66,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$REQUESTED_DURATION" in
-            15m) minutes=15;; 30m) minutes=30;; 1h) minutes=60;; 2h) minutes=120;; 3h) minutes=180;; 4h) minutes=240;; 5h) minutes=300;; 6h) minutes=360;;
+            15m) minutes=15;; 30m) minutes=30;; 1h) minutes=60;; 2h) minutes=120;; 3h) minutes=180;; 4h) minutes=240;; 5h) minutes=300;; 5h30m) minutes=330;;
             *) echo "Unsupported duration: $REQUESTED_DURATION"; exit 1;;
           esac
           echo "BUILDER_MAX_MINUTES=$minutes" >> "$GITHUB_ENV"

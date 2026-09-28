@@ -1,0 +1,24 @@
+{
+  "name": "knt-hire-and-sales",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node node_modules/vite/bin/vite.js",
+    "build": "node node_modules/vite/bin/vite.js build",
+    "preview": "node node_modules/vite/bin/vite.js preview",
+    "autobot": "node builder/runner/task-driven.mjs",
+    "release:check": "npm run build",
+    "check": "npm run release:check && node scripts/source-smoke.mjs && node scripts/public-asset-smoke.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "latest",
+    "@vercel/sandbox": "latest",
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest"
+  },
+  "devDependencies": {}
+}
