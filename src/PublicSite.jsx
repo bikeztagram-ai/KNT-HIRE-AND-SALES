@@ -2,9 +2,9 @@ import React from "react";
 import StockVisual from "./StockVisual";
 
 const stock = [
-  { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Full specification and price to be confirmed by KNT." },
-  { id:"grendia", name:"Mitsubishi Grendia 20", image:"/stock/mitsubishi-grendia-20.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
-  { id:"mitsubishi", name:"Mitsubishi 2.5T", image:"/stock/mitsubishi-fg25.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Model specification and price to be confirmed by KNT." }
+  { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.svg", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Full specification and price to be confirmed by KNT." },
+  { id:"grendia", name:"Mitsubishi Grendia 20", image:"/stock/mitsubishi-grendia-20.svg", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
+  { id:"mitsubishi", name:"Mitsubishi 2.5T", image:"/stock/mitsubishi-fg25.svg", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Model specification and price to be confirmed by KNT." }
 ];
 
 export default function PublicSite(){
@@ -31,7 +31,7 @@ export default function PublicSite(){
           <p className="hero-lead">KNT Hire & Sales Ltd supply quality used forklifts, offer flexible hire options and provide practical servicing and support across East Yorkshire and beyond.</p>
           <div className="hero-actions"><a className="primary" href="#stock">View forklifts for sale →</a><a className="secondary" href="#contact">Enquire now →</a></div>
         </div>
-        <div className="hero-stock"><span>REAL KNT STOCK</span><strong>FORKLIFT<br/>TRUCKS</strong></div>
+        <div className="hero-stock"><span>KNT STOCK</span><strong>FORKLIFT<br/>TRUCKS</strong></div>
         <div className="hero-services"><a href="#hire"><b>⚑ HIRE</b><small>Short & long-term hire</small></a><a href="#stock"><b>▣ SALES</b><small>Quality used forklifts</small></a><a href="#services"><b>⚒ SERVICING</b><small>Repairs & maintenance</small></a><a href="#contact"><b>⚙ PARTS</b><small>Advice & support</small></a></div>
       </section>
 
