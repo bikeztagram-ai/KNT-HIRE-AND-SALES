@@ -52,6 +52,7 @@ jobs:
             -t 4 \
             -tb 4 \
             -n 64 \
+            -st \
             --perf \
             --no-display-prompt \
             -p 'Write a JavaScript function named add that takes two numbers and returns their sum. Return only the code.'
