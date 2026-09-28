@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "autobot": "node builder/runner/task-driven.mjs"
+    "autobot": "node builder/runner/task-driven.mjs",
+    "release:check": "npm run build",
+    "check": "npm run release:check"
   },
   "dependencies": {
     "@supabase/supabase-js": "latest",
