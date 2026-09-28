@@ -1,9 +1,9 @@
 import React from "react";
 
 const stock = [
-  { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
+  { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Full specification and price to be confirmed by KNT." },
   { id:"grendia", name:"Mitsubishi Grendia 20", image:"/stock/mitsubishi-grendia-20.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
-  { id:"mitsubishi", name:"Mitsubishi 2.5T", image:"/stock/mitsubishi-fg25.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Model specification and price to be confirmed by KNT." }
+  { id:"mitsubishi", name:"Mitsubishi 2.5T", image:"/stock/mitsubishi-fg25.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Used forklift currently being prepared for sale. Model specification and price to be confirmed by KNT." }
 ];
 
 export default function PublicSite(){
@@ -11,11 +11,11 @@ export default function PublicSite(){
     <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"LocalBusiness","name":"KNT Hire & Sales Ltd","telephone":"+44 1377 200523","url":"/","address":{"@type":"PostalAddress","streetAddress":"2 Wood Lane","addressLocality":"Driffield","postalCode":"YO25 6DU","addressCountry":"GB"},"areaServed":"East Yorkshire"})}</script>
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="site-header">
-      <a className="brand" href="#top" aria-label="KNT Hire & Sales home"><img src="/knt-logo-real.webp" alt="KNT Hire & Sales Ltd — Forklift Trucks"/></a>
+      <a className="brand" href="#top" aria-label="KNT Hire & Sales home"><img src="/knt-logo.svg" alt="KNT Hire & Sales Ltd — Forklift Trucks"/></a>
       <nav aria-label="Main navigation">
         <a className="active" href="#top">Home</a><a href="#stock">Forklifts for Sale</a><a href="#hire">Hire</a><a href="#services">Servicing</a><a href="#about">About</a><a href="#contact">Contact</a>
       </nav>
-      <div className="header-contact"><a href="tel:01377200523">☎ <b>01377 253324</b><small>Mon - Fri 8:00 - 17:00</small></a><span className="location"><b>📍 Driffield</b><small>East Yorkshire</small></span></div>
+      <div className="header-contact"><a href="tel:01377200523"><b>01377 200523</b><small>Mon - Fri 8:00 - 17:00</small></a><span className="location"><b>📍 Driffield</b><small>East Yorkshire</small></span></div>
       <a className="header-call" href="tel:01377200523">Call KNT</a>
     </header>
 
@@ -56,6 +56,6 @@ export default function PublicSite(){
         <div className="contact-actions"><a className="primary" href="tel:01377200523">01377 200523</a><a href="tel:07702813510">07702 813510</a><a href="https://wa.me/447702813510" target="_blank" rel="noreferrer">WhatsApp enquiry →</a><p>2 Wood Lane, Driffield, YO25 6DU</p></div>
       </section>
     </main>
-    <footer><img src="/knt-logo-real.webp" alt="KNT Hire & Sales Ltd"/><span>© KNT Hire & Sales Ltd · East Yorkshire</span><a href="/app">KNT App →</a></footer>
+    <footer><img src="/knt-logo.svg" alt="KNT Hire & Sales Ltd"/><span>© KNT Hire & Sales Ltd · East Yorkshire</span><a href="/app">KNT App →</a></footer>
   </div>;
 }
