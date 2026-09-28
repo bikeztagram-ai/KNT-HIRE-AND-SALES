@@ -2,12 +2,12 @@
   "name": "KNT Hire & Sales",
   "short_name": "KNT",
   "description": "KNT forklift jobs, fleet, service and compliance management.",
-  "start_url": "/",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#08111f",
-  "theme_color": "#0b5cff",
-  "orientation": "portrait-primary",
+  "background_color": "#07111a",
+  "theme_color": "#07111a",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/icons/knt-192.svg",
@@ -21,5 +21,6 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "id": "/"
 }
