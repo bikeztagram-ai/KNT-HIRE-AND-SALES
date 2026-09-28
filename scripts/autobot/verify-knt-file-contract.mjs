@@ -23,19 +23,19 @@ for(const o of objectives){
 const runner=read('builder/runner/aider-feature-brain.mjs');
 const checks=[
  ['KNT objectives',runner.includes('feature-objectives.json')],
- ['exact objective files',runner.includes('scopedFiles(obj)')&&runner.includes('aiderFiles')],
+ ['exact objective files',runner.includes('scopedFiles(o)')&&runner.includes('aiderFiles')],
  ['dependency-aware selection',runner.includes('o.dependsOn')],
- ['KNT-only prompt',runner.includes('KNT-HIRE-AND-SALES')&&runner.includes('ONLY files you may modify')],
- ['exact path authority',runner.includes('exact repository paths')],
- ['repository-map subtree',runner.includes('--subtree-only')&&runner.includes('--map-tokens=512')],
+ ['KNT-only prompt',runner.includes('KNT-HIRE-AND-SALES')&&runner.includes('ONLY the supplied objective files may be modified')],
+ ['exact path authority',runner.includes('Exact supplied paths are authoritative')],
+ ['repository-map subtree',runner.includes('--subtree-only')&&runner.includes('--map-tokens=768')],
  ['durable state recovery',runner.includes('loadAiderState')&&runner.includes('saveAiderState')],
  ['bounded passes/deadline',runner.includes('AUTOBOT_FEATURE_PASSES')&&runner.includes('AUTOBOT_FEATURE_DEADLINE_EPOCH_MS')],
- ['pass rollback',runner.includes('restorePassSnapshot')&&runner.includes('aider-pass-snapshot')],
- ['scope enforcement',runner.includes('unauthorized KNT modified paths')],
+ ['pass rollback',runner.includes('snapshot(files)')&&runner.includes('restore(o,snap)')&&runner.includes('aider-pass-snapshot')],
+ ['scope enforcement',runner.includes('Aider modified files outside KNT objective scope')],
  ['diff verification',runner.includes("['diff','--check']")],
- ['build verification',runner.includes("['run','build']")],
+ ['build verification',runner.includes("run('npm',['run','build']")],
  ['no automatic commits',runner.includes('--no-auto-commits')&&runner.includes('--no-dirty-commits')],
- ['business safety',runner.includes('original evidence')&&runner.includes('human-invoice-review')],
+ ['business safety',runner.includes('original evidence')&&runner.includes('human invoice review')],
  ['local model',runner.includes('LOCAL_AI_MODEL')&&runner.includes('ollama_chat')]
 ];
 for(const [name,ok] of checks)if(!ok)failures.push(name);
