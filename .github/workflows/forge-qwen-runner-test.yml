@@ -19,7 +19,7 @@ jobs:
       - name: Download llama.cpp
         run: |
           curl -L --fail --retry 3 -o /tmp/llama.tar.gz \
-            https://github.com/ggml-org/llama.cpp/releases/download/v0.4.1/llama-v0.4.1-bin-ubuntu-x64.tar.gz
+            https://github.com/ggml-org/llama.cpp/releases/download/b11017/llama-b11017-bin-ubuntu-x64.tar.gz
           mkdir -p /tmp/llama
           tar -xzf /tmp/llama.tar.gz -C /tmp/llama
           find /tmp/llama -type f -name llama-cli -print -exec chmod +x {} \;
