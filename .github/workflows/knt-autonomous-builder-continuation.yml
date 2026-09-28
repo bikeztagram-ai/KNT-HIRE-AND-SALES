@@ -101,7 +101,7 @@ jobs:
           echo "TOTAL_BUILDER_MINUTES=$TOTAL_BUDGET_MINUTES" >> "$GITHUB_ENV"
           echo "BUILDER_MAX_MINUTES=$segment" >> "$GITHUB_ENV"
           echo "BUILDER_WORKING_BRANCH=$CONTINUATION_REF" >> "$GITHUB_ENV"
-          echo "BUILDER_BASE_BRANCH=feature/knt-v1-foundation" >> "$GITHUB_ENV"
+          echo "BUILDER_BASE_BRANCH=forge/knt-public-foundation" >> "$GITHUB_ENV"
           echo "AUTOBOT_AIDER_MODEL=ollama_chat/$LOCAL_AI_MODEL" >> "$GITHUB_ENV"
           echo "AUTOBOT_FEATURE_ENGINE=aider-repo-map-v4" >> "$GITHUB_ENV"
           echo "AUTOBOT_FEATURE_PROTOCOL=aider-repo-map-v4" >> "$GITHUB_ENV"
