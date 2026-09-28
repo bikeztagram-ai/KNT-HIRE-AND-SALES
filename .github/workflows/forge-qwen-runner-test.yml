@@ -3,6 +3,7 @@ name: Forge Qwen Runner Test
 on:
   push:
     branches: [forge-runner-test]
+  workflow_dispatch:
 
 permissions:
   contents: read
