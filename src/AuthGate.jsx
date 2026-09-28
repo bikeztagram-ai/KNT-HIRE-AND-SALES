@@ -9,6 +9,7 @@ export default function AuthGate({ children }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [signingIn, setSigningIn] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -27,8 +28,10 @@ export default function AuthGate({ children }) {
   async function signIn(event) {
     event.preventDefault();
     setError('');
+    setSigningIn(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (signInError) setError(signInError.message);
+    setSigningIn(false);
   }
 
   return <div className="auth-shell"><form className="auth-card" onSubmit={signIn}>
@@ -38,6 +41,6 @@ export default function AuthGate({ children }) {
     <label>Email<input type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></label>
     <label>Password<input type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required /></label>
     {error && <div className="error-box" role="alert">{error}</div>}
-    <button className="primary wide" type="submit">Sign in</button>
+    <button className="primary wide" type="submit" disabled={signingIn}>{signingIn ? 'Signing in…' : 'Sign in'}</button>
   </form></div>;
 }
