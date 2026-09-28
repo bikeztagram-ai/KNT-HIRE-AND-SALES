@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "autobot": "node builder/runner/task-driven.mjs",
     "release:check": "npm run build",
-    "check": "npm run release:check"
+    "check": "npm run release:check && node scripts/source-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "latest",
