@@ -1,7 +1,6 @@
 import React from "react";
 
 const stock = [
-  { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
   { id:"grendia", name:"Mitsubishi Grendia 20", image:"/stock/mitsubishi-grendia-20.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
   { id:"mitsubishi", name:"Mitsubishi 2.5T", image:"/stock/mitsubishi-fg25.webp", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Model specification and price to be confirmed by KNT." }
 ];
