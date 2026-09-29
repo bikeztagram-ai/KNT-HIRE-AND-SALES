@@ -32,6 +32,7 @@ create table if not exists public.invoice_lines (id uuid primary key default gen
 create table if not exists public.payments (id uuid primary key default gen_random_uuid(), invoice_id uuid not null references public.invoices(id) on delete cascade, payment_date date not null default current_date, amount numeric not null, reference text, notes text, created_at timestamptz not null default now());
 create table if not exists public.reminders (id uuid primary key default gen_random_uuid(), forklift_id uuid references public.forklifts(id) on delete cascade, job_id uuid references public.jobs(id) on delete cascade, reminder_type text not null, due_date date not null, status text not null default 'open', reminder_days integer[] not null default '{60,30,14,7}', created_at timestamptz not null default now());
 create table if not exists public.job_status_history (id uuid primary key default gen_random_uuid(), job_id uuid not null references public.jobs(id) on delete cascade, old_status text, new_status text not null, changed_by uuid references auth.users(id) on delete set null, changed_at timestamptz not null default now(), note text);
+create table if not exists public.knt_work_queue (id uuid primary key default gen_random_uuid(), title text not null, customer_site text, machine text, notes text, priority text not null default 'normal' check (priority in ('low','normal','high','urgent')), status text not null default 'open' check (status in ('open','done')), created_by uuid references auth.users(id) on delete set null, created_by_name text, completed_by uuid references auth.users(id) on delete set null, completed_by_name text, created_at timestamptz not null default now(), completed_at timestamptz, updated_at timestamptz not null default now());
 
 create index if not exists sites_customer_id_idx on public.sites(customer_id);
 create index if not exists forklifts_site_id_idx on public.forklifts(site_id);
@@ -49,9 +50,10 @@ alter table public.supplier_order_lines add column if not exists job_part_id uui
 create index if not exists invoices_customer_id_idx on public.invoices(customer_id);
 create index if not exists reminders_due_date_idx on public.reminders(due_date);
 create index if not exists job_status_history_job_id_idx on public.job_status_history(job_id, changed_at desc);
+create index if not exists knt_work_queue_status_idx on public.knt_work_queue(status, priority, created_at desc);
 
 create or replace function public.set_updated_at() returns trigger language plpgsql as $$ begin new.updated_at = now(); return new; end $$;
-do $$ declare t text; begin foreach t in array array['profiles','customers','sites','forklifts','jobs','suppliers','parts','pricing_settings','quotes','invoices'] loop execute format('drop trigger if exists %I_updated_at on public.%I', t, t); execute format('create trigger %I_updated_at before update on public.%I for each row execute function public.set_updated_at()', t, t); end loop; end $$;
+do $$ declare t text; begin foreach t in array array['profiles','customers','sites','forklifts','jobs','suppliers','parts','pricing_settings','quotes','invoices','knt_work_queue'] loop execute format('drop trigger if exists %I_updated_at on public.%I', t, t); execute format('create trigger %I_updated_at before update on public.%I for each row execute function public.set_updated_at()', t, t); end loop; end $$;
 
 alter table public.profiles enable row level security;
 alter table public.customers enable row level security;
@@ -74,8 +76,10 @@ alter table public.invoice_lines enable row level security;
 alter table public.payments enable row level security;
 alter table public.reminders enable row level security;
 alter table public.job_status_history enable row level security;
+alter table public.knt_work_queue enable row level security;
 
 -- Shared KNT workspace: authenticated engineers can work with shared operational records.
-do $$ declare t text; begin foreach t in array array['customers','sites','forklifts','jobs','job_photos','job_parts','service_events','forklift_documents','suppliers','parts','supplier_orders','supplier_order_lines','pricing_settings','quotes','quote_lines','invoices','invoice_lines','payments','reminders','job_status_history'] loop execute format('drop policy if exists "authenticated shared access" on public.%I', t); execute format('create policy "authenticated shared access" on public.%I for all to authenticated using (true) with check (true)', t); end loop; end $$;
+do $$ declare t text; begin foreach t in array array['customers','sites','forklifts','jobs','job_photos','job_parts','service_events','forklift_documents','suppliers','parts','supplier_orders','supplier_order_lines','pricing_settings','quotes','quote_lines','invoices','invoice_lines','payments','reminders','job_status_history','knt_work_queue'] loop execute format('drop policy if exists "authenticated shared access" on public.%I', t); execute format('create policy "authenticated shared access" on public.%I for all to authenticated using (true) with check (true)', t); end loop; end $$;
+grant select, insert, update, delete on table public.knt_work_queue to authenticated;
 create policy "users can read own profile" on public.profiles for select to authenticated using (id = auth.uid());
 create policy "users can update own profile" on public.profiles for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
