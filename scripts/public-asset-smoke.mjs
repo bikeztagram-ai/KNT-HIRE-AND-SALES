@@ -5,7 +5,6 @@ const root = process.cwd();
 const publicDir = path.join(root, "public");
 const required = [
   "knt-logo.jpg",
-  "manifest.webmanifest",
   "stock/daewoo-d15s.jpg",
   "stock/daewoo-d15s-detail.jpg",
   "stock/mitsubishi-2.5t.jpg",
