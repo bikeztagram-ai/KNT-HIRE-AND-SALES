@@ -1,0 +1,123 @@
+/* KNT Theme A website — shared industrial visual language */
+.public-site{
+ --orange:#ff7600;--orange-hi:#ff9a2e;--ink:#050a0e;--panel:#0b151e;--panel2:#101f2b;--line:#243d4d;
+ background:#050a0e;color:#eef3f6;
+}
+.public-site .site-header{
+ background:rgba(3,8,12,.96);
+ border-bottom:2px solid rgba(255,118,0,.7);
+ box-shadow:0 10px 35px rgba(0,0,0,.35);
+}
+.public-site .brand img{filter:drop-shadow(0 6px 12px rgba(0,0,0,.45))}
+.public-site .site-header nav a.active,.public-site .site-header nav a:hover{color:var(--orange-hi)}
+.public-site .site-header nav a.active{border-bottom-color:var(--orange)}
+.public-site .hero{
+ min-height:610px;
+ background-color:#050b10;
+ background-position:center;
+}
+.public-site .hero-overlay{
+ background:
+  linear-gradient(90deg,rgba(2,6,9,.97) 0%,rgba(3,8,12,.88) 40%,rgba(3,8,12,.3) 75%,rgba(3,8,12,.65) 100%),
+  linear-gradient(0deg,rgba(2,6,9,.94),transparent 45%);
+}
+.public-site .hero-copy{
+ max-width:680px;
+}
+.public-site .hero h1{
+ text-shadow:0 5px 24px rgba(0,0,0,.45);
+}
+.public-site .hero-lines{
+ color:var(--orange-hi);
+ letter-spacing:.02em;
+}
+.public-site .hero-stock{
+ background:linear-gradient(145deg,rgba(8,16,23,.82),rgba(4,10,15,.66));
+ border-color:rgba(255,154,46,.3);
+ box-shadow:0 20px 55px rgba(0,0,0,.35);
+}
+.public-site .hero-services{
+ background:rgba(3,9,13,.96);
+ border-top:1px solid #2d4656;
+}
+.public-site .hero-services a{
+ border-color:#263e4d;
+}
+.public-site .hero-services a:hover{
+ background:rgba(255,118,0,.07);
+}
+.public-site .section{
+ background:
+  radial-gradient(circle at 50% 0%,rgba(255,118,0,.045),transparent 30%),
+  linear-gradient(180deg,#071019 0%,#050c12 100%);
+}
+.public-site .stock-grid{gap:20px}
+.public-site .stock-card{
+ background:linear-gradient(145deg,#0e1b25,#08121a);
+ border:1px solid #243d4d;
+ border-radius:14px;
+ color:#eef3f6;
+ box-shadow:0 16px 38px rgba(0,0,0,.28);
+}
+.public-site .stock-card:hover{
+ transform:translateY(-3px);
+ border-color:#35566b;
+ box-shadow:0 20px 45px rgba(0,0,0,.34);
+}
+.public-site .stock-image{background:#061019}
+.public-site .stock-body h3{color:#fff}
+.public-site .stock-body p{color:#9aaab5}
+.public-site .card-cta{color:var(--orange-hi)}
+.public-site .services{
+ background:
+  radial-gradient(circle at 15% 0%,rgba(255,118,0,.09),transparent 28%),
+  linear-gradient(180deg,#050b10,#09151e);
+}
+.public-site .service-cards a{
+ background:linear-gradient(145deg,#101f2b,#0a151e);
+ border:1px solid #243d4d;
+ transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.public-site .service-cards a:hover{
+ transform:translateY(-3px);
+ border-color:#35566b;
+ box-shadow:0 15px 32px rgba(0,0,0,.28);
+}
+.public-site .service-cards b{
+ background:rgba(255,118,0,.12);
+ color:var(--orange-hi);
+ border:1px solid rgba(255,118,0,.2);
+}
+.public-site .split{
+ background:
+  radial-gradient(circle at 85% 50%,rgba(255,118,0,.08),transparent 28%),
+  #071019;
+ color:#eef3f6;
+}
+.public-site .split p:not(.eyebrow){color:#a9b6bf}
+.public-site .contact{
+ background:
+  radial-gradient(circle at 15% 50%,rgba(255,118,0,.09),transparent 28%),
+  #0b1822;
+ color:#fff;
+}
+.public-site .contact-actions>a:not(.primary){color:#e8eef2}
+.public-site .contact-actions p{color:#a9b6bf}
+.public-site .primary{
+ background:linear-gradient(135deg,#ff941f,#ff6b00);
+ box-shadow:0 8px 22px rgba(255,118,0,.18);
+}
+.public-site .secondary{
+ border-color:#8e9ca5;
+}
+.public-site footer{
+ background:#020609;
+ border-top:1px solid #1d3341;
+}
+.public-site .section h2,.public-site .section-head h2{color:#fff}
+@media(max-width:820px){
+ .public-site .hero{min-height:680px}
+ .public-site .hero-overlay{
+  background:linear-gradient(90deg,rgba(2,6,9,.97),rgba(3,8,12,.76)),linear-gradient(0deg,rgba(2,6,9,.94),transparent 45%);
+ }
+}
