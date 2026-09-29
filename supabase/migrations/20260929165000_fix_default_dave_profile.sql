@@ -1,0 +1,1 @@
+-- Correct the legacy KNT profile value created from the account email prefix.\n-- Other users remain profile-driven and are not changed.\nupdate public.profiles\nset display_name = 'Dave'\nwhere lower(trim(display_name)) = 'dsengineeringhull';\n
