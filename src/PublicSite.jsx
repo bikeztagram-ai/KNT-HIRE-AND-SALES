@@ -1,4 +1,5 @@
 import React from "react";
+import StockVisual from "./StockVisual";
 
 const stock = [
   { id:"daewoo", name:"Daewoo D15S", image:"/stock/daewoo-d15s.jpg", tag:"USED FORKLIFT · AVAILABLE", note:"Real KNT stock photography. Full specification and price to be confirmed by KNT." },
@@ -29,14 +30,14 @@ export default function PublicSite(){
           <p className="hero-lead">KNT Hire & Sales Ltd supply quality used forklifts, offer flexible hire options and provide practical servicing and support across East Yorkshire and beyond.</p>
           <div className="hero-actions"><a className="primary" href="#stock">View forklifts for sale →</a><a className="secondary" href="#contact">Enquire now →</a></div>
         </div>
-        <div className="hero-stock"><span>REAL KNT STOCK</span><strong>FORKLIFT<br/>TRUCKS</strong></div>
+        <div className="hero-machine"><StockVisual item={stock[0]} hero/></div><div className="hero-stock"><span>REAL KNT STOCK</span><strong>FORKLIFT<br/>TRUCKS</strong></div>
         <div className="hero-services"><a href="#hire"><b>⚑ HIRE</b><small>Short & long-term hire</small></a><a href="#stock"><b>▣ SALES</b><small>Quality used forklifts</small></a><a href="#services"><b>⚒ SERVICING</b><small>Repairs & maintenance</small></a><a href="#contact"><b>⚙ PARTS</b><small>Advice & support</small></a></div>
       </section>
 
       <section className="stock section" id="stock">
         <div className="section-head"><div><p className="eyebrow">LATEST STOCK</p><h2>Forklifts <em>for sale</em></h2></div><a href="#contact">View all stock →</a></div>
         <div className="stock-grid">{stock.map(item=><article className="stock-card" key={item.id}>
-          <div className="stock-image"><img src={item.image} alt={item.name}/><span>{item.tag}</span></div>
+          <StockVisual item={item}/>
           <div className="stock-body"><h3>{item.name}</h3><p>{item.note}</p><a className="card-cta" href="#contact">View details →</a></div>
         </article>)}</div>
       </section>
@@ -44,6 +45,18 @@ export default function PublicSite(){
       <section className="services section dark" id="services">
         <div className="services-copy"><p className="eyebrow">OUR SERVICES</p><h2>Supporting your business</h2><p>From a single forklift hire to ongoing fleet support, KNT provides a practical service built around keeping your equipment working.</p><a className="secondary" href="#contact">Find out more →</a></div>
         <div className="service-cards"><a href="#hire"><b>▣</b><h3>Forklift Hire</h3><p>Short & long-term hire options.</p></a><a href="#contact"><b>⚒</b><h3>Servicing & Repairs</h3><p>Keep your fleet running at its best.</p></a><a href="#contact"><b>⚙</b><h3>Parts & Attachments</h3><p>Genuine parts and practical advice.</p></a><a href="#stock"><b>▤</b><h3>Sales</h3><p>Quality used forklifts in stock.</p></a></div>
+      </section>
+
+      <section className="about section" id="about">
+        <div className="about-heading">
+          <p className="eyebrow">ABOUT KNT</p>
+          <h2>A family-run forklift business, built around keeping your business moving.</h2>
+        </div>
+        <div className="about-copy">
+          <p>KNT Hire & Sales Ltd is a family-run business based in Driffield, East Yorkshire. We combine forklift sales, hire, servicing, repairs and parts support with a straightforward, personal approach.</p>
+          <p>Whether you need one machine or support for an active fleet, our aim is simple: practical advice, dependable equipment and a service you can talk to.</p>
+          <div className="about-points"><div><strong>LOCAL</strong><span>East Yorkshire based</span></div><div><strong>FAMILY-RUN</strong><span>Personal service</span></div><div><strong>FULL SUPPORT</strong><span>Hire · sales · servicing · parts</span></div></div>
+        </div>
       </section>
 
       <section className="section split" id="hire">
