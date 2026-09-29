@@ -56,6 +56,6 @@ export default function PublicSite(){
         <div className="contact-actions"><a className="primary" href="tel:01377200523">01377 200523</a><a href="tel:07702813510">07702 813510</a><a href="https://wa.me/447702813510" target="_blank" rel="noreferrer">WhatsApp enquiry →</a><p>2 Wood Lane, Driffield, YO25 6DU</p></div>
       </section>
     </main>
-    <footer><img src="/knt-logo.jpg" alt="KNT Hire & Sales Ltd"/><span>© KNT Hire & Sales Ltd · East Yorkshire</span><a href="/app">KNT App →</a></footer>
+    <footer><img src="/knt-logo.jpg" alt="KNT Hire & Sales Ltd"/><span>© KNT Hire & Sales Ltd · East Yorkshire</span><a href="https://knt-hire-and-sales-app.vercel.app/">Download KNT App →</a></footer>
   </div>;
 }
