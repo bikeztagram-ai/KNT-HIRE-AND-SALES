@@ -16,7 +16,7 @@ export default function PublicSite(){
       <nav aria-label="Main navigation">
         <a className="active" href="#top">Home</a><a href="#stock">Forklifts for Sale</a><a href="#hire">Hire</a><a href="#services">Servicing</a><a href="#about">About</a><a href="#contact">Contact</a><a className="app-nav-link" href="https://knt-hire-and-sales-app.vercel.app/" target="_blank" rel="noreferrer">KNT App ↗</a>
       </nav>
-      <div className="header-contact"><a href="tel:01377200523">☎ <b>01377 253324</b><small>Mon - Fri 8:00 - 17:00</small></a><span className="location"><b>📍 Driffield</b><small>East Yorkshire</small></span></div>
+      <div className="header-contact"><a href="tel:01377200523">☎ <b>01377 200523</b><small>Mon - Fri 8:00 - 17:00</small></a><span className="location"><b>📍 Driffield</b><small>East Yorkshire</small></span></div>
       <a className="header-call" href="tel:01377200523">Call KNT</a>
     </header>
 
