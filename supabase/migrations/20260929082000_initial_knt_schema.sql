@@ -12,6 +12,27 @@ create table if not exists public.profiles (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+create or replace function public.handle_new_knt_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, display_name, role)
+  values (
+    new.id,
+    coalesce(nullif(new.raw_user_meta_data->>'full_name',''), nullif(new.raw_user_meta_data->>'name',''), split_part(new.email,'@',1)),
+    'engineer'
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created_knt on auth.users;
+create trigger on_auth_user_created_knt
+after insert on auth.users
+for each row execute function public.handle_new_knt_user();
 create table if not exists public.customers (id uuid primary key default gen_random_uuid(), name text not null, account_number text, phone text, email text, notes text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create table if not exists public.sites (id uuid primary key default gen_random_uuid(), customer_id uuid not null references public.customers(id) on delete restrict, name text not null, address text, contact_name text, contact_phone text, contact_email text, notes text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create table if not exists public.forklifts (id uuid primary key default gen_random_uuid(), customer_id uuid references public.customers(id) on delete set null, site_id uuid references public.sites(id) on delete set null, plant_number text not null unique, make text, model text, serial_number text, hours numeric, status text not null default 'active', photo_path text, next_service_date date, next_loler_date date, notes text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
