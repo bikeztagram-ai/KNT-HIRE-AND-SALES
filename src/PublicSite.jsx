@@ -30,7 +30,7 @@ export default function PublicSite(){
           <p className="hero-lead">KNT Hire & Sales Ltd supply quality used forklifts, offer flexible hire options and provide practical servicing and support across East Yorkshire and beyond.</p>
           <div className="hero-actions"><a className="primary" href="#stock">View forklifts for sale →</a><a className="secondary" href="#contact">Enquire now →</a></div>
         </div>
-        <div className="hero-machine"><StockVisual item={stock[0]} hero/></div><div className="hero-stock"><span>REAL KNT STOCK</span><strong>FORKLIFT<br/>TRUCKS</strong></div>
+        <div className="hero-machine"><img src="/knt-logo.jpg" alt="" aria-hidden="true" /></div><div className="hero-stock"><span>REAL KNT STOCK</span><strong>FORKLIFT<br/>TRUCKS</strong></div>
         <div className="hero-services"><a href="#hire"><b>⚑ HIRE</b><small>Short & long-term hire</small></a><a href="#stock"><b>▣ SALES</b><small>Quality used forklifts</small></a><a href="#services"><b>⚒ SERVICING</b><small>Repairs & maintenance</small></a><a href="#contact"><b>⚙ PARTS</b><small>Advice & support</small></a></div>
       </section>
 
