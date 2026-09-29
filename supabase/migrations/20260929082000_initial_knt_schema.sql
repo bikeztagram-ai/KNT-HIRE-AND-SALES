@@ -1,3 +1,5 @@
+-- KNT initial production schema and private storage foundation.
+-- Supabase GitHub integration deployment marker: 2026-09-29.
 -- KNT Hire & Sales production foundation
 -- Run in a new Supabase project before enabling the cloud data layer.
 create extension if not exists pgcrypto;
